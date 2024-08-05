@@ -17,3 +17,5 @@ class SpeakerIdentifier:
     def learn(self, audio_path):
         subsegments_path = AudioCutter(audio_path).cut()
         
+        self.__move_files(subsegments_path, '16000_pcm_speeches')
+        
