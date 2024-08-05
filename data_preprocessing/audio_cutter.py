@@ -16,9 +16,9 @@ class AudioCutter:
         4. Saves subsegments to output_path
     ''' 
     
-    def __init__(self, audio_path, output_path, subsegment_length = 1000):
+    def __init__(self, audio_path, subsegment_length = 1000):
         self.audio_path = audio_path
-        self.output_path = output_path
+        self.output_path = Config.subsegments_path
         self.subsegment_length = subsegment_length
 
 
@@ -98,3 +98,4 @@ class AudioCutter:
         diarization = self.__diarize()
         subsegments = self.__segment(diarization)
         self.__save_subsegments(subsegments)
+        return self.output_path
