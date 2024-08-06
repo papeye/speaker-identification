@@ -1,3 +1,4 @@
+from typing import List
 from pyannote.audio import Pipeline
 import onnxruntime
 from pydub import AudioSegment
@@ -18,11 +19,12 @@ class AudioCutter:
     
     def __init__(self, audio_path, subsegment_length = 1000):
         self.audio_path = audio_path
-        self.output_path = Config.subsegments_path
+        self.audio_name = os.path.basename(audio_path)
+        self.output_path = os.path.join(Config.dataset_root, self.audio_name)
         self.subsegment_length = subsegment_length
+        
 
 
-    
     def __diarize(self):
         pipeline = Pipeline.from_pretrained(
             "pyannote/speaker-diarization-3.0", use_auth_token=Config.hugging_face_token
@@ -52,7 +54,7 @@ class AudioCutter:
         return segments
         
     
-    def __segment(self, segments):
+    def __segment(self, segments: List[Segment]):
         subsegments = []
         
         for segment in segments:
@@ -74,12 +76,11 @@ class AudioCutter:
         return subsegments
     
     
-    def __save_subsegments(self, subsegments):
+    def __save_subsegments(self, subsegments: List[Segment]):
         audio = AudioSegment.from_wav(self.audio_path)
-        output = os.path.join(self.output_dir, 'subsegments')
 
-        if not os.path.exists(output):
-          os.makedirs(output)
+        if not os.path.exists(self.output_path):
+          os.makedirs(self.output_path)
 
 
         for segment in subsegments:
@@ -87,15 +88,15 @@ class AudioCutter:
           end = segment.end
           file_name = f"{start} - {end}.wav"
 
-          segment_output = os.path.join(output, file_name)
+          segment_output = os.path.join(self.output_path, file_name)
           new_audio = audio[start:end]
           new_audio.export(segment_output, format="wav")
           print(f"Saved {file_name}")
         
         
         
-    def cut(self):
+    def cutAndAddToBaseData(self):
         diarization = self.__diarize()
         subsegments = self.__segment(diarization)
         self.__save_subsegments(subsegments)
-        return self.output_path
+    
