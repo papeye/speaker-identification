@@ -1,5 +1,6 @@
 import os
 import shutil
+import librosa
 from config import Config
 from pathlib import Path
 
@@ -73,18 +74,26 @@ class DataPreparator():
                     )
             
     def __resample(self, folder_path):
-        command = (
-        "for dir in `ls -1 " + folder_path + "`; do "
-        "for file in `ls -1 " + folder_path + "/$dir/*.wav`; do "
-        "sample_rate=`ffprobe -hide_banner -loglevel panic -show_streams "
-        "$file | grep sample_rate | cut -f2 -d=`; "
-        "if [ $sample_rate -ne 16000 ]; then "
-        "ffmpeg -hide_banner -loglevel panic -y "
-        "-i $file -ar 16000 temp.wav; "
-        "mv temp.wav $file; "
-        "fi; done; done"
-        )
-        os.system(command)
+        for file in os.listdir(folder_path):
+            print(f'resampling {file}...')
+            
+            y, s = librosa.load(file, sr=Config.sampling_rate)
+            librosa.output.write_wav(file, y, s)
+            
+        print(f'resampled every file in {folder_path} to {Config.sampling_rate}!')
+            
+        # command = (
+        # "for dir in `ls -1 " + folder_path + "`; do "
+        # "for file in `ls -1 " + folder_path + "/$dir/*.wav`; do "
+        # "sample_rate=`ffprobe -hide_banner -loglevel panic -show_streams "
+        # "$file | grep sample_rate | cut -f2 -d=`; "
+        # "if [ $sample_rate -ne 16000 ]; then "
+        # "ffmpeg -hide_banner -loglevel panic -y "
+        # "-i $file -ar 16000 temp.wav; "
+        # "mv temp.wav $file; "
+        # "fi; done; done"
+        # )
+        # os.system(command)
                 
          
     def __prepare_noise(self):
