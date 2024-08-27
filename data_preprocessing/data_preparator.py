@@ -83,8 +83,8 @@ class DataPreparator():
       self.__resample(new_subsegments_folder)
       
       
-    def prepare(self):
+    def prepare(self, audio_name):
         self.___move_files_to_proper_folders()
         self.__prepare_noise()
-        self.__prepare_new_speaker()
+        self.__prepare_new_speaker(audio_name)
         
