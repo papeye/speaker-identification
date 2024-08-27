@@ -3,8 +3,7 @@ import shutil
 import librosa
 from config import Config
 from pathlib import Path
-
-
+import soundfile as sf
 
 class DataPreparator():
     '''
@@ -75,10 +74,15 @@ class DataPreparator():
             
     def __resample(self, folder_path):
         for file in os.listdir(folder_path):
-            print(f'resampling {file}...')
+            file_path = os.path.join(folder_path, file)
             
-            y, s = librosa.load(file, sr=Config.sampling_rate)
-            librosa.output.write_wav(file, y, s)
+            
+            y, sr = librosa.load(file_path)
+            
+            print(f'resampling {file_path} from {sr} to {Config.sampling_rate}...')
+            
+            sf.write(file_path, y, samplerate = Config.sampling_rate)
+            #librosa.output.write_wav(file, y, s)
             
         print(f'resampled every file in {folder_path} to {Config.sampling_rate}!')
             
@@ -101,11 +105,12 @@ class DataPreparator():
         We load all noise samples (which should have been resampled to 16000)
         We split those noise samples to chunks of 16000 samples which correspond to 1 second duration each
         '''
+        noise_folder = Config.dataset_noise_path
         
         # Get the list of all noise files
         noise_paths = []
-        for subdir in os.listdir(Config.dataset_noise_path):
-            subdir_path = Path(Config.dataset_noise_path) / subdir
+        for subdir in os.listdir(noise_folder):
+            subdir_path = Path(noise_folder) / subdir
             if os.path.isdir(subdir_path):
                 noise_paths += [
                     os.path.join(subdir_path, filepath)
@@ -113,15 +118,17 @@ class DataPreparator():
                     if filepath.endswith(".wav")
                 ]
         if not noise_paths:
-            raise RuntimeError(f"Could not find any files at {Config.dataset_noise_path}")
+            raise RuntimeError(f"Could not find any files at {noise_folder}")
         print(
             "Found {} files belonging to {} directories".format(
                 len(noise_paths), len(os.listdir(Config.dataset_noise_path))
             )
         )
+        
+        
              
-        for folder in os.listdir(Config.dataset_noise_path):
-            self.__resample(folder)
+        for folder in os.listdir(noise_folder):
+            self.__resample(os.path.join(noise_folder, folder))
         
         
     def __prepare_new_speaker(self):
@@ -129,7 +136,7 @@ class DataPreparator():
       
       
     def prepare(self):
-        self.___move_files_to_proper_folders()
+       # self.___move_files_to_proper_folders()
         self.__prepare_noise()
         self.__prepare_new_speaker()
         
