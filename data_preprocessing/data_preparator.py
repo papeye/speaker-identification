@@ -120,7 +120,8 @@ class DataPreparator():
             )
         )
              
-        self.__resample(Config.dataset_noise_path)
+        for folder in os.listdir(Config.dataset_noise_path):
+            self.__resample(folder)
         
         
     def __prepare_new_speaker(self):
