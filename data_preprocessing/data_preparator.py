@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 
-class DataPreparator:
+class DataPreparator():
     '''
     The dataset is composed of 7 folders, divided into 2 groups:
 
@@ -47,8 +47,8 @@ class DataPreparator:
     '''
     
 
-    def __init__(self):
-        pass
+    def __init__(self, new_audio_folder):
+        self.new_audio_folder = new_audio_folder
         
           
     def ___move_files_to_proper_folders(self):
@@ -114,7 +114,12 @@ class DataPreparator:
         self.__resample(Config.dataset_noise_path)
         
         
-        
     def __prepare_new_speaker(self):
-      self.__resample(Config.)
+      self.__resample(self.new_audio_folder)
+      
+      
+    def prepare(self):
+        self.___move_files_to_proper_folders()
+        self.__prepare_noise()
+        self.__prepare_new_speaker()
         
