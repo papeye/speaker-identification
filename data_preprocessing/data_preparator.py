@@ -69,7 +69,7 @@ class DataPreparator():
                     # `audio` folder
                     shutil.move(
                         os.path.join(Config.dataset_root, folder),
-                        os.path.join(Config.audio_path, folder),
+                        os.path.join(Config.dataset_audio_path, folder),
                     )
             
     def __resample(self, folder_path):
