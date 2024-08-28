@@ -4,6 +4,7 @@ import librosa
 from config import Config
 from pathlib import Path
 import soundfile as sf
+import tensorflow as tf
 
 class DataPreparator():
     '''
@@ -83,8 +84,33 @@ class DataPreparator():
       self.__resample(new_subsegments_folder)
       
       
+    # Split noise into chunks of 16,000 steps each
+    def __load_noise_sample(path):
+        sample, sampling_rate = tf.audio.decode_wav(
+            tf.io.read_file(path), desired_channels=1
+        )
+        if sampling_rate == Config.sampling_rate:
+            # Number of slices of 16000 each that can be generated from the noise sample
+            slices = int(sample.shape[0] / Config.sampling_rate)
+            sample = tf.split(sample[: slices * Config.sampling_rate], slices)
+            return sample
+        else:
+            print("Sampling rate for {} is incorrect. Ignoring it".format(path))
+            return None
+        
+    def __load_noise(self, noise_paths):
+        noises = []
+        for path in noise_paths:
+            sample = self.__load_noise_sample(path)
+            if sample:
+                noises.extend(sample)
+        return tf.stack(noises)
+      
+      
+      
     def prepare(self, audio_name):
         self.___move_files_to_proper_folders()
         self.__prepare_noise()
         self.__prepare_new_speaker(audio_name)
+        return self.__load_noise(noise_paths)
         
