@@ -11,3 +11,6 @@ class Segment:
 
     def __str__(self):
         return f"Segment(\n{self.start} - {self.end}, {self.speaker},\n)"
+    
+    def __repr__(self):
+        return self.__str__()
