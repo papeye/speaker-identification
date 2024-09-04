@@ -10,7 +10,7 @@ class Config:
     dataset_noise_path = os.path.join(dataset_root, noise_subfolder)
     valid_split = 0.1
     shuffle_seed = 43
-    samplig_rate = 16000
+    sampling_rate = 16000
     scale = 0.5
     batch_size = 128
     epochs = 1 

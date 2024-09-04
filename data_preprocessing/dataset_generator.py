@@ -2,11 +2,9 @@ import os
 
 os.environ["KERAS_BACKEND"] = "tensorflow"
 
-import shutil
 import numpy as np
 
 import tensorflow as tf
-import keras
 
 from pathlib import Path
 
@@ -67,7 +65,7 @@ class DatasetGenerator:
 
     # Get the list of audio file paths along with their corresponding labels
 
-    def Generate(self):
+    def generate(self, noises):
         
         class_names = os.listdir(Config.dataset_audio_path)
         print(
@@ -139,4 +137,6 @@ class DatasetGenerator:
             lambda x, y: (self.__audio_to_fft(x), y), num_parallel_calls=tf.data.AUTOTUNE
         )
         valid_ds = valid_ds.prefetch(tf.data.AUTOTUNE)
+        
+        return train_ds, valid_ds
 
