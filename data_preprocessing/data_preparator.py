@@ -72,11 +72,11 @@ class DataPreparator():
                 len(noise_paths), len(os.listdir(Config.dataset_noise_path))
             )
         )
-        
-        
              
         for folder in os.listdir(noise_folder):
             self.__resample(os.path.join(noise_folder, folder))
+            
+        return noise_paths
         
         
     def __prepare_new_speaker(self, audio_name):
@@ -85,7 +85,7 @@ class DataPreparator():
       
       
     # Split noise into chunks of 16,000 steps each
-    def __load_noise_sample(path):
+    def __load_noise_sample(self, path):
         sample, sampling_rate = tf.audio.decode_wav(
             tf.io.read_file(path), desired_channels=1
         )
@@ -110,7 +110,7 @@ class DataPreparator():
       
     def prepare(self, audio_name):
         self.___move_files_to_proper_folders()
-        self.__prepare_noise()
+        noise_paths =  self.__prepare_noise()
         self.__prepare_new_speaker(audio_name)
         return self.__load_noise(noise_paths)
         
