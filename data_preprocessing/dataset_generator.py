@@ -138,5 +138,5 @@ class DatasetGenerator:
         )
         valid_ds = valid_ds.prefetch(tf.data.AUTOTUNE)
         
-        return train_ds, valid_ds
+        return train_ds, valid_ds, class_names
 

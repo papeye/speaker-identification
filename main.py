@@ -3,13 +3,15 @@ from data_preprocessing.audio_cutter import AudioCutter
 from config import Config
 from data_preprocessing.data_preparator import DataPreparator
 from data_preprocessing.dataset_generator import DatasetGenerator
-
+from nnmodel import Model
 def main():
     audio_path = 'example_data/ryczekWav.wav'
     audio_name = os.path.basename(audio_path)
     AudioCutter(audio_path).cutAndAddToBaseData()
     noises = DataPreparator().prepare(audio_name)
-    train_ds, valid_ds =  DatasetGenerator().generate(noises)
+    train_ds, valid_ds, class_names =  DatasetGenerator().generate(noises)
+    model1=Model(len(class_names))
+    model1.train(1,train_ds,valid_ds)
     
     
 
