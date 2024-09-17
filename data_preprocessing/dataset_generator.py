@@ -11,22 +11,21 @@ from pathlib import Path
 from config import Config
 
 class DatasetGenerator:
-
-    def __paths_and_labels_to_dataset(self, audio_paths, labels):
-        """Constructs a dataset of audios and labels."""
-        path_ds = tf.data.Dataset.from_tensor_slices(audio_paths)
-        audio_ds = path_ds.map(
-            lambda x: self.__path_to_audio(x), num_parallel_calls=tf.data.AUTOTUNE
-        )
-        label_ds = tf.data.Dataset.from_tensor_slices(labels)
-        return tf.data.Dataset.zip((audio_ds, label_ds))
-
-
-    def __path_to_audio(self, path):
+    
+    def path_to_audio(self, path):
         """Reads and decodes an audio file."""
         audio = tf.io.read_file(path)
         audio, _ = tf.audio.decode_wav(audio, 1, Config.sampling_rate)
         return audio
+
+    def paths_and_labels_to_dataset(self, audio_paths, labels):
+        """Constructs a dataset of audios and labels."""
+        path_ds = tf.data.Dataset.from_tensor_slices(audio_paths)
+        audio_ds = path_ds.map(
+            lambda x: self.path_to_audio(x), num_parallel_calls=tf.data.AUTOTUNE
+        )
+        label_ds = tf.data.Dataset.from_tensor_slices(labels)
+        return tf.data.Dataset.zip((audio_ds, label_ds))
 
 
     def __add_noise(self, audio, noises=None, scale=0.5):
@@ -48,7 +47,7 @@ class DatasetGenerator:
         return audio
 
 
-    def __audio_to_fft(self, audio):
+    def audio_to_fft(self, audio):
         # Since tf.signal.fft applies FFT on the innermost dimension,
         # we need to squeeze the dimensions and then expand them again
         # after FFT
@@ -112,12 +111,12 @@ class DatasetGenerator:
         valid_labels = labels[-num_val_samples:]
 
         # Create 2 datasets, one for training and the other for validation
-        train_ds = self.__paths_and_labels_to_dataset(train_audio_paths, train_labels)
+        train_ds = self.paths_and_labels_to_dataset(train_audio_paths, train_labels)
         train_ds = train_ds.shuffle(buffer_size=Config.batch_size * 8, seed=Config.shuffle_seed).batch(
             Config.batch_size
         )
 
-        valid_ds = self.__paths_and_labels_to_dataset(valid_audio_paths, valid_labels)
+        valid_ds = self.paths_and_labels_to_dataset(valid_audio_paths, valid_labels)
         valid_ds = valid_ds.shuffle(buffer_size=32 * 8, seed=Config.shuffle_seed).batch(32)
 
 
@@ -129,14 +128,14 @@ class DatasetGenerator:
 
         # Transform audio wave to the frequency domain using `audio_to_fft`
         train_ds = train_ds.map(
-            lambda x, y: (self.__audio_to_fft(x), y), num_parallel_calls=tf.data.AUTOTUNE
+            lambda x, y: (self.audio_to_fft(x), y), num_parallel_calls=tf.data.AUTOTUNE
         )
         train_ds = train_ds.prefetch(tf.data.AUTOTUNE)
 
         valid_ds = valid_ds.map(
-            lambda x, y: (self.__audio_to_fft(x), y), num_parallel_calls=tf.data.AUTOTUNE
+            lambda x, y: (self.audio_to_fft(x), y), num_parallel_calls=tf.data.AUTOTUNE
         )
         valid_ds = valid_ds.prefetch(tf.data.AUTOTUNE)
         
-        return train_ds, valid_ds, class_names
+        return train_ds, valid_ds, class_names, valid_audio_paths, valid_labels
 
