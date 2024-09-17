@@ -6,6 +6,7 @@ from data_preprocessing.dataset_generator import DatasetGenerator
 from nnmodel import Model
 import numpy as np
 from IPython.display import display, Audio
+import tensorflow as tf
 
 def main():
     audio_path = 'example_data/ryczekWav.wav'
@@ -17,9 +18,14 @@ def main():
     model1.train(1,train_ds,valid_ds)
     
     test_ds = DatasetGenerator().paths_and_labels_to_dataset(valid_audio_paths, valid_labels)
+    test_ds = test_ds.shuffle(buffer_size=Config.batch_size * 8, seed=Config.shuffle_seed).batch(Config.batch_size)
+
+    test_ds = test_ds.map(
+        lambda x, y: (DatasetGenerator().add_noise(x, noises, scale=Config.scale), y),
+        num_parallel_calls=tf.data.AUTOTUNE,
+    )
     
     SAMPLES_TO_DISPLAY = 10
-    
     
     for audios, labels in test_ds.take(1):
         # Get the signal FFT

@@ -28,7 +28,7 @@ class DatasetGenerator:
         return tf.data.Dataset.zip((audio_ds, label_ds))
 
 
-    def __add_noise(self, audio, noises=None, scale=0.5):
+    def add_noise(self, audio, noises=None, scale=0.5):
         if noises is not None:
             # Create a random tensor of the same size as audio ranging from
             # 0 to the number of noise stream samples that we have.
@@ -122,7 +122,7 @@ class DatasetGenerator:
 
         # Add noise to the training set
         train_ds = train_ds.map(
-            lambda x, y: (self.__add_noise(x, noises, scale=Config.scale), y),
+            lambda x, y: (self.add_noise(x, noises, scale=Config.scale), y),
             num_parallel_calls=tf.data.AUTOTUNE,
         )
 
