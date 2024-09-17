@@ -107,7 +107,7 @@ class DataPreparator():
         return tf.stack(noises)
       
       
-      
+    @staticmethod  
     def prepare(self, audio_name):
         self.___move_files_to_proper_folders()
         noise_paths =  self.__prepare_noise()

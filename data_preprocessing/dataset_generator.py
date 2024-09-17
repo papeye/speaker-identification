@@ -10,25 +10,27 @@ from pathlib import Path
 
 from config import Config
 
+
 class DatasetGenerator:
-    
-    def path_to_audio(self, path):
+    def __init__(self, class_names):
+        self.class_names = class_names
+
+    def __path_to_audio(self, path):
         """Reads and decodes an audio file."""
         audio = tf.io.read_file(path)
         audio, _ = tf.audio.decode_wav(audio, 1, Config.sampling_rate)
         return audio
 
-    def paths_and_labels_to_dataset(self, audio_paths, labels):
+    def __paths_and_labels_to_dataset(self, audio_paths, labels):
         """Constructs a dataset of audios and labels."""
         path_ds = tf.data.Dataset.from_tensor_slices(audio_paths)
         audio_ds = path_ds.map(
-            lambda x: self.path_to_audio(x), num_parallel_calls=tf.data.AUTOTUNE
+            lambda x: self.__path_to_audio(x), num_parallel_calls=tf.data.AUTOTUNE
         )
         label_ds = tf.data.Dataset.from_tensor_slices(labels)
         return tf.data.Dataset.zip((audio_ds, label_ds))
 
-
-    def add_noise(self, audio, noises=None, scale=0.5):
+    def __add_noise(self, audio, noises=None, scale=0.5):
         if noises is not None:
             # Create a random tensor of the same size as audio ranging from
             # 0 to the number of noise stream samples that we have.
@@ -46,7 +48,6 @@ class DatasetGenerator:
 
         return audio
 
-
     def audio_to_fft(self, audio):
         # Since tf.signal.fft applies FFT on the innermost dimension,
         # we need to squeeze the dimensions and then expand them again
@@ -61,21 +62,13 @@ class DatasetGenerator:
         # which represents the positive frequencies
         return tf.math.abs(fft[:, : (audio.shape[1] // 2), :])
 
-
     # Get the list of audio file paths along with their corresponding labels
 
-    def generate(self, noises):
-        
-        class_names = os.listdir(Config.dataset_audio_path)
-        print(
-            "Our class names: {}".format(
-                class_names,
-            )
-        )
+    def generate_train_valid_ds(self, noises):
 
         audio_paths = []
         labels = []
-        for label, name in enumerate(class_names):
+        for label, name in enumerate(self.class_names):
             print(
                 "Processing speaker {}".format(
                     name,
@@ -91,7 +84,9 @@ class DatasetGenerator:
             labels += [label] * len(speaker_sample_paths)
 
         print(
-            "Found {} files belonging to {} classes.".format(len(audio_paths), len(class_names))
+            "Found {} files belonging to {} classes.".format(
+                len(audio_paths), len(class_names)
+            )
         )
 
         # Shuffle
@@ -111,18 +106,19 @@ class DatasetGenerator:
         valid_labels = labels[-num_val_samples:]
 
         # Create 2 datasets, one for training and the other for validation
-        train_ds = self.paths_and_labels_to_dataset(train_audio_paths, train_labels)
-        train_ds = train_ds.shuffle(buffer_size=Config.batch_size * 8, seed=Config.shuffle_seed).batch(
-            Config.batch_size
+        train_ds = self.__paths_and_labels_to_dataset(train_audio_paths, train_labels)
+        train_ds = train_ds.shuffle(
+            buffer_size=Config.batch_size * 8, seed=Config.shuffle_seed
+        ).batch(Config.batch_size)
+
+        valid_ds = self.__paths_and_labels_to_dataset(valid_audio_paths, valid_labels)
+        valid_ds = valid_ds.shuffle(buffer_size=32 * 8, seed=Config.shuffle_seed).batch(
+            32
         )
-
-        valid_ds = self.paths_and_labels_to_dataset(valid_audio_paths, valid_labels)
-        valid_ds = valid_ds.shuffle(buffer_size=32 * 8, seed=Config.shuffle_seed).batch(32)
-
 
         # Add noise to the training set
         train_ds = train_ds.map(
-            lambda x, y: (self.add_noise(x, noises, scale=Config.scale), y),
+            lambda x, y: (self.__add_noise(x, noises, scale=Config.scale), y),
             num_parallel_calls=tf.data.AUTOTUNE,
         )
 
@@ -136,6 +132,19 @@ class DatasetGenerator:
             lambda x, y: (self.audio_to_fft(x), y), num_parallel_calls=tf.data.AUTOTUNE
         )
         valid_ds = valid_ds.prefetch(tf.data.AUTOTUNE)
-        
-        return train_ds, valid_ds, class_names, valid_audio_paths, valid_labels
 
+        self.valid_audio_paths = valid_audio_paths
+        self.valid_labels = valid_labels
+
+        return train_ds, valid_ds
+
+    def generate_test_ds(self, noises):
+        test_ds = self.valid_ds.shuffle(
+            buffer_size=Config.batch_size * 8, seed=Config.shuffle_seed
+        ).batch(Config.batch_size)
+        test_ds = test_ds.map(
+            lambda x, y: (self.__add_noise(x, noises, scale=Config.scale), y),
+            # num_parallel_calls=tf.data.AUTOTUNE,
+        )
+
+        return test_ds
