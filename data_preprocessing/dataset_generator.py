@@ -12,8 +12,6 @@ from config import Config
 
 
 class DatasetGenerator:
-    def __init__(self, class_names):
-        self.class_names = class_names
 
     def __path_to_audio(self, path):
         """Reads and decodes an audio file."""
@@ -64,11 +62,11 @@ class DatasetGenerator:
 
     # Get the list of audio file paths along with their corresponding labels
 
-    def generate_train_valid_ds(self, noises):
+    def generate_train_valid_ds(self, noises, class_names):
 
         audio_paths = []
         labels = []
-        for label, name in enumerate(self.class_names):
+        for label, name in enumerate(class_names):
             print(
                 "Processing speaker {}".format(
                     name,
@@ -112,6 +110,8 @@ class DatasetGenerator:
         ).batch(Config.batch_size)
 
         valid_ds = self.__paths_and_labels_to_dataset(valid_audio_paths, valid_labels)
+        self.valid_ds = valid_ds
+
         valid_ds = valid_ds.shuffle(buffer_size=32 * 8, seed=Config.shuffle_seed).batch(
             32
         )

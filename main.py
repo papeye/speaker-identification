@@ -20,18 +20,20 @@ def main():
     class_names = os.listdir(Config.dataset_audio_path)
     print("Found speakers: {}".format(class_names))
 
-    train_ds, valid_ds = DatasetGenerator().generate_train_valid_ds(noises)
+    ds_generator = DatasetGenerator()
+
+    train_ds, valid_ds = ds_generator.generate_train_valid_ds(noises, class_names)
 
     nn_model = NNModel(len(class_names))
     nn_model.train(1, train_ds, valid_ds)
 
-    test_ds = DatasetGenerator().generate_test_ds(noises)
+    test_ds = ds_generator.generate_test_ds(noises)
 
     SAMPLES_TO_DISPLAY = 50
 
     for audios, labels in test_ds.take(1):
         # Get the signal FFT
-        ffts = DatasetGenerator().audio_to_fft(audios)
+        ffts = ds_generator.audio_to_fft(audios)
         # Predict
         y_pred = nn_model.predict(ffts)
         # Take random samples
