@@ -1,7 +1,9 @@
 import os
+
+
 class Config:
     hugging_face_token = "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"
-    dataset_root = '16000_pcm_speeches'
+    dataset_root = "16000_pcm_speeches"
 
     audio_subfolder = "audio"
     noise_subfolder = "noise"
@@ -13,4 +15,5 @@ class Config:
     sampling_rate = 16000
     scale = 0.5
     batch_size = 128
-    epochs = 1 
+    epochs = 1
+    dataset_train = "train_ds_dir"
