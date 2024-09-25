@@ -12,10 +12,10 @@ def main():
     audio_name = os.path.basename(audio_path)
 
     AudioCutter(audio_path).cutAndAddToBaseData()
-    print("Audio cut and added to base data")
+    print("Audio cut and added to ", Config.dataset_train_audio)
 
-    # noises = DataPreparator().prepare(audio_name)
-    # print("Noises moved to proper folders")
+    noises = DataPreparator().prepare(audio_name)
+    print("Noises moved to proper folders")
 
     # class_names = os.listdir(Config.dataset_audio_path)
     # print("Found speakers: {}".format(class_names))
