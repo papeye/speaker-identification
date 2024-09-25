@@ -37,7 +37,9 @@ class DataPreparator:
     def __resample(self, folder_path):
         for file in os.listdir(folder_path):
             file_path = os.path.join(folder_path, file)
-            print(file_path)
+
+            if os.path.exists(file_path):
+                print(file_path)
 
             y, sr = librosa.load(file_path)
 
