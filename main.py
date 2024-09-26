@@ -5,6 +5,7 @@ from data_preprocessing.data_preparator import DataPreparator
 from data_preprocessing.dataset_generator import DatasetGenerator
 from nnmodel import NNModel
 import numpy as np
+import h5py
 
 
 def main():

@@ -42,10 +42,13 @@ class DataPreparator:
                 print(file_path)
 
             y, sr = librosa.load(file_path)
+            resampled_y = librosa.resample(
+                y, orig_sr=sr, target_sr=Config.sampling_rate
+            )
 
             print(f"resampling {file_path} from {sr} to {Config.sampling_rate}...")
 
-            sf.write(file_path, y, samplerate=Config.sampling_rate)
+            sf.write(file_path, resampled_y, samplerate=Config.sampling_rate)
 
         print(f"resampled every file in {folder_path} to {Config.sampling_rate}!")
 
