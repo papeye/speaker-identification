@@ -40,9 +40,6 @@ class DataPreparator:
         for file in os.listdir(folder_path):
             file_path = os.path.join(folder_path, file)
 
-            if os.path.exists(file_path):
-                print(file_path)
-
             y, sr = librosa.load(file_path)
             resampled_y = librosa.resample(
                 y, orig_sr=sr, target_sr=Config.sampling_rate
@@ -72,14 +69,11 @@ class DataPreparator:
         if not noise_paths:
             raise RuntimeError(f"Could not find any files at {noise_folder}")
         print(
-            "Found {} files belonging to {} directories".format(
-                len(noise_paths), len(os.listdir(Config.dataset_train_noise))
-            )
+            f"Found {len(noise_paths)} files belonging to {len(os.listdir(Config.dataset_train_noise))} directories"
         )
 
         for folder in os.listdir(noise_folder):
             self.__resample(os.path.join(noise_folder, folder))
-            print(folder)
 
         return noise_paths
 
@@ -98,7 +92,7 @@ class DataPreparator:
             sample = tf.split(sample[: slices * Config.sampling_rate], slices)
             return sample
         else:
-            print("Sampling rate for {} is incorrect. Ignoring it".format(path))
+            print(f"Sampling rate for {path} is incorrect. Ignoring it")
             return None
 
     def __load_noise(self, noise_paths):
@@ -112,7 +106,5 @@ class DataPreparator:
     def prepare(self, audio_name):
         self.___move_files_to_proper_folders()
         noise_paths = self.__prepare_noise()
-        print("aaaaaaaaaaaaaaaaaaaaaaa")
         self.__prepare_new_speaker(audio_name)
-        print("bbbbbbbbbbbbbbbbbbbbbbbbb")
         return self.__load_noise(noise_paths)
