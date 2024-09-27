@@ -4,6 +4,9 @@ from pydub import AudioSegment
 import os
 import shutil
 import time
+from pyannote.audio import Model
+from pyannote.audio.pipelines import VoiceActivityDetection
+
 
 from data_preprocessing.models.segment import Segment
 from config import Config
@@ -30,26 +33,29 @@ class AudioCutter:
     def __diarize(self):
         start_time = time.time()
         
-        pipeline = Pipeline.from_pretrained(
-            "pyannote/speaker-diarization-3.0", use_auth_token=Config.hugging_face_token
-        )
+        model = Model.from_pretrained("pyannote/segmentation", 
+                              use_auth_token=Config.hugging_face_token)
 
-        # send pipeline to GPU (when available)
-        # import torch
-        # pipeline.to(torch.device("cuda"))
 
+        pipeline = VoiceActivityDetection(segmentation=model)
+        
+        HYPER_PARAMETERS = {
+          # onset/offset activation thresholds
+          "onset": 0.5, "offset": 0.5,
+          # remove speech regions shorter than that many seconds.
+          "min_duration_on": 1.0,
+          # fill non-speech regions shorter than that many seconds.
+          "min_duration_off": 0.0
+        }
+        pipeline.instantiate(HYPER_PARAMETERS)
         diarization = pipeline(self.audio_path)
+        
+        
+        segments = [
+          Segment(int(speech.start * 1000), int(speech.end * 1000), self.audio_name) for speech in diarization.get_timeline().support()
+        ]
 
-        segments = []
-
-        for turn, _, speaker in diarization.itertracks(yield_label=True):
-            start = int(turn.start * 1000)
-            end = int(turn.end * 1000)
-
-            if end - start >= self.subsegment_length:
-                segments.append(Segment(start, end, self.audio_name))
-
-        print(f"Diarization took {time.time() - start_time} seconds and forund {len(segments)} segments")
+        print(f"Diarization took {time.time() - start_time} seconds and found {len(segments)} segments")
 
         return segments
 
@@ -68,7 +74,7 @@ class AudioCutter:
                 s_start = s_start + self.subsegment_length
                 s_end = s_start + self.subsegment_length
 
-        print(f"Audio cut into {len(subsegments)} subsegments of length {self.subsegment_length * 1000}s")
+        print(f"Audio cut into {len(subsegments)} subsegments of length {self.subsegment_length / 1000}s")
 
         return subsegments
 

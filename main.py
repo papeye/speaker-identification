@@ -16,6 +16,7 @@ def main():
 
     AudioCutter(audio_path).cutAndAddToBaseData()
     print("Audio cut and added to ", Config.dataset_train_audio)
+    
 
     noises = DataPreparator().prepare(audio_name)
     print("Noises moved to proper folders")
@@ -28,7 +29,7 @@ def main():
     train_ds, valid_ds = ds_generator.generate_train_valid_ds(noises, class_names)
 
     nn_model = NNModel(len(class_names))
-    nn_model.train(1, train_ds, valid_ds)
+    nn_model.train(Config.epochs, train_ds, valid_ds)
 
     test_ds = ds_generator.generate_test_ds(noises)
 
