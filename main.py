@@ -21,7 +21,7 @@ def main():
     print("Noises moved to proper folders")
 
     class_names = os.listdir(Config.dataset_train_audio)
-    print("Found speakers: {}".format(class_names))
+    print(f"Found speakers: {class_names}")
 
     ds_generator = DatasetGenerator()
 
