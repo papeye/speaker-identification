@@ -1,12 +1,12 @@
 from typing import List
 from pyannote.audio import Pipeline
-import onnxruntime
 from pydub import AudioSegment
 import os
 
 from data_preprocessing.models.segment import Segment
 from config import Config
 import shutil
+import time
 
 
 class AudioCutter:
@@ -28,6 +28,8 @@ class AudioCutter:
         self.subsegment_length = subsegment_length
 
     def __diarize(self):
+        start_time = time.time()
+        
         pipeline = Pipeline.from_pretrained(
             "pyannote/speaker-diarization-3.0", use_auth_token=Config.hugging_face_token
         )
