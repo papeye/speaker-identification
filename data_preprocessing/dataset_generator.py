@@ -67,11 +67,9 @@ class DatasetGenerator:
         audio_paths = []
         labels = []
         for label, name in enumerate(class_names):
-            print(
-                "Processing speaker {}".format(
-                    name,
-                )
-            )
+            
+            print(f"Processing speaker {name}")
+            
             dir_path = Path(Config.dataset_train_audio) / name
             speaker_sample_paths = [
                 os.path.join(dir_path, filepath)
@@ -81,11 +79,7 @@ class DatasetGenerator:
             audio_paths += speaker_sample_paths
             labels += [label] * len(speaker_sample_paths)
 
-        print(
-            "Found {} files belonging to {} classes.".format(
-                len(audio_paths), len(class_names)
-            )
-        )
+        print(f"Found {len(audio_paths)} files belonging to {len(class_names)} classes.")
 
         # Shuffle
         rng = np.random.RandomState(Config.shuffle_seed)
@@ -95,11 +89,14 @@ class DatasetGenerator:
 
         # Split into training and validation
         num_val_samples = int(Config.valid_split * len(audio_paths))
-        print("Using {} files for training.".format(len(audio_paths) - num_val_samples))
+        
+        print(f"Using {len(audio_paths) - num_val_samples} files for training.")
+        
         train_audio_paths = audio_paths[:-num_val_samples]
         train_labels = labels[:-num_val_samples]
 
-        print("Using {} files for validation.".format(num_val_samples))
+        print(f"Using {num_val_samples} files for validation.")
+        
         valid_audio_paths = audio_paths[-num_val_samples:]
         valid_labels = labels[-num_val_samples:]
 

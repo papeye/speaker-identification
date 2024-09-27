@@ -2,11 +2,11 @@ from typing import List
 from pyannote.audio import Pipeline
 from pydub import AudioSegment
 import os
+import shutil
+import time
 
 from data_preprocessing.models.segment import Segment
 from config import Config
-import shutil
-import time
 
 
 class AudioCutter:
@@ -49,9 +49,7 @@ class AudioCutter:
             if end - start >= self.subsegment_length:
                 segments.append(Segment(start, end, self.audio_name))
 
-        print("Diarization:")
-        print(segments[:5])
-        print(f"...and so on till {len(diarization)}")
+        print(f"Diarization took {time.time() - start_time} seconds and forund {len(segments)} segments")
 
         return segments
 
@@ -70,9 +68,7 @@ class AudioCutter:
                 s_start = s_start + self.subsegment_length
                 s_end = s_start + self.subsegment_length
 
-        print("Segmentation:")
-        print(subsegments[:5])
-        print(f"and so on till {len(subsegments)}")
+        print(f"Audio cut into {len(subsegments)} subsegments of length {self.subsegment_length * 1000}s")
 
         return subsegments
 
@@ -90,7 +86,8 @@ class AudioCutter:
             segment_output = os.path.join(self.output_path, file_name)
             new_audio = audio[start:end]
             new_audio.export(segment_output, format="wav")
-            print(f"Saved {file_name}")
+        
+        print(f"Saved {len(subsegments)} subsegments to {self.output_path}")
 
     def cutAndAddToBaseData(self):
         diarization = self.__diarize()

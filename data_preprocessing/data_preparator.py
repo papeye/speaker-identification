@@ -35,6 +35,8 @@ class DataPreparator:
                     )
 
     def __resample(self, folder_path):
+        files = os.listdir(folder_path)
+        
         for file in os.listdir(folder_path):
             file_path = os.path.join(folder_path, file)
 
@@ -46,11 +48,9 @@ class DataPreparator:
                 y, orig_sr=sr, target_sr=Config.sampling_rate
             )
 
-            print(f"resampling {file_path} from {sr} to {Config.sampling_rate}...")
-
             sf.write(file_path, resampled_y, samplerate=Config.sampling_rate)
 
-        print(f"resampled every file in {folder_path} to {Config.sampling_rate}!")
+        print(f"Resampled {len(files)} file in {folder_path} to {Config.sampling_rate}!")
 
     def __prepare_noise(self):
         """
