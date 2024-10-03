@@ -72,7 +72,7 @@ class DatasetGenerator:
                     name,
                 )
             )
-            dir_path = Path(Config.dataset_audio_path) / name
+            dir_path = Path(Config.dataset_train_audio) / name
             speaker_sample_paths = [
                 os.path.join(dir_path, filepath)
                 for filepath in os.listdir(dir_path)

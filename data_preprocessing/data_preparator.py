@@ -17,33 +17,38 @@ class DataPreparator:
     def ___move_files_to_proper_folders(self):
         for folder in os.listdir(Config.dataset_root):
             if os.path.isdir(os.path.join(Config.dataset_root, folder)):
-                if folder in [Config.audio_subfolder, Config.noise_subfolder]:
-                    # If folder is `audio` or `noise`, do nothing
-                    continue
-                elif folder in ["other", "_background_noise_"]:
+                if folder in ["other", "_background_noise_"]:
                     # If folder is one of the folders that contains noise samples,
                     # move it to the `noise` folder
-                    shutil.move(
+                    shutil.copytree(
                         os.path.join(Config.dataset_root, folder),
-                        os.path.join(Config.dataset_noise_path, folder),
+                        os.path.join(Config.dataset_train_noise, folder),
+                        dirs_exist_ok=True,
                     )
                 else:
                     # Otherwise, it should be a speaker folder, then move it to
                     # `audio` folder
-                    shutil.move(
+                    shutil.copytree(
                         os.path.join(Config.dataset_root, folder),
-                        os.path.join(Config.dataset_audio_path, folder),
+                        os.path.join(Config.dataset_train_audio, folder),
+                        dirs_exist_ok=True,
                     )
 
     def __resample(self, folder_path):
         for file in os.listdir(folder_path):
             file_path = os.path.join(folder_path, file)
 
+            if os.path.exists(file_path):
+                print(file_path)
+
             y, sr = librosa.load(file_path)
+            resampled_y = librosa.resample(
+                y, orig_sr=sr, target_sr=Config.sampling_rate
+            )
 
             print(f"resampling {file_path} from {sr} to {Config.sampling_rate}...")
 
-            sf.write(file_path, y, samplerate=Config.sampling_rate)
+            sf.write(file_path, resampled_y, samplerate=Config.sampling_rate)
 
         print(f"resampled every file in {folder_path} to {Config.sampling_rate}!")
 
@@ -52,7 +57,7 @@ class DataPreparator:
         We load all noise samples (which should have been resampled to 16000)
         We split those noise samples to chunks of 16000 samples which correspond to 1 second duration each
         """
-        noise_folder = Config.dataset_noise_path
+        noise_folder = Config.dataset_train_noise
 
         # Get the list of all noise files
         noise_paths = []
@@ -68,17 +73,18 @@ class DataPreparator:
             raise RuntimeError(f"Could not find any files at {noise_folder}")
         print(
             "Found {} files belonging to {} directories".format(
-                len(noise_paths), len(os.listdir(Config.dataset_noise_path))
+                len(noise_paths), len(os.listdir(Config.dataset_train_noise))
             )
         )
 
         for folder in os.listdir(noise_folder):
             self.__resample(os.path.join(noise_folder, folder))
+            print(folder)
 
         return noise_paths
 
     def __prepare_new_speaker(self, audio_name):
-        new_subsegments_folder = os.path.join(Config.dataset_audio_path, audio_name)
+        new_subsegments_folder = os.path.join(Config.dataset_train_audio, audio_name)
         self.__resample(new_subsegments_folder)
 
     # Split noise into chunks of 16,000 steps each
@@ -106,5 +112,7 @@ class DataPreparator:
     def prepare(self, audio_name):
         self.___move_files_to_proper_folders()
         noise_paths = self.__prepare_noise()
+        print("aaaaaaaaaaaaaaaaaaaaaaa")
         self.__prepare_new_speaker(audio_name)
+        print("bbbbbbbbbbbbbbbbbbbbbbbbb")
         return self.__load_noise(noise_paths)

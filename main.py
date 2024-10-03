@@ -5,6 +5,7 @@ from data_preprocessing.data_preparator import DataPreparator
 from data_preprocessing.dataset_generator import DatasetGenerator
 from nnmodel import NNModel
 import numpy as np
+import h5py
 
 
 def main():
@@ -12,12 +13,12 @@ def main():
     audio_name = os.path.basename(audio_path)
 
     AudioCutter(audio_path).cutAndAddToBaseData()
-    print("Audio cut and added to base data")
+    print("Audio cut and added to ", Config.dataset_train_audio)
 
     noises = DataPreparator().prepare(audio_name)
     print("Noises moved to proper folders")
 
-    class_names = os.listdir(Config.dataset_audio_path)
+    class_names = os.listdir(Config.dataset_train_audio)
     print("Found speakers: {}".format(class_names))
 
     ds_generator = DatasetGenerator()
