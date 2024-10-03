@@ -5,6 +5,7 @@ class Config:
     hugging_face_token = "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"
     dataset_root = "16000_pcm_speeches"
     dataset_train = "train_ds_dir"
+    dataset_test = "test_ds_dir"
 
     audio_subfolder = "audio"
     noise_subfolder = "noise"
@@ -20,3 +21,5 @@ class Config:
 
     dataset_train_audio = os.path.join(dataset_train, audio_subfolder)
     dataset_train_noise = os.path.join(dataset_train, noise_subfolder)
+    dataset_test_audio = os.path.join(dataset_test, audio_subfolder)
+    dataset_test_noise = os.path.join(dataset_test, noise_subfolder)

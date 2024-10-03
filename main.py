@@ -11,12 +11,29 @@ from nnmodel import NNModel
 
 
 def main():
-    audio_path = "example_data/ryczekWav.wav"
+    audio_path = "train_data/ryczekWav.wav"
     audio_name = os.path.basename(audio_path)
 
     AudioCutter(audio_path).cutAndAddToBaseData()
     print("Audio cut and added to ", Config.dataset_train_audio)
     
+    audio_path = "train_data/edzik.wav"
+    audio_name = os.path.basename(audio_path)
+
+    AudioCutter(audio_path).cutAndAddToBaseData()
+    print("Audio cut and added to ", Config.dataset_train_audio)
+    
+    audio_path = "test_data/edzik2.wav"
+    audio_name = os.path.basename(audio_path)
+
+    AudioCutter(audio_path).cutAndAddToBaseData()
+    print("Audio cut and added to ", Config.dataset_test_audio)
+    
+    audio_path = "test_data/ryczekWav.wav"
+    audio_name = os.path.basename(audio_path)
+
+    AudioCutter(audio_path).cutAndAddToBaseData()
+    print("Audio cut and added to ", Config.dataset_test_audio)
 
     noises = DataPreparator().prepare(audio_name)
     print("Noises moved to proper folders")
