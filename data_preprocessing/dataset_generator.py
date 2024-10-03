@@ -1,10 +1,13 @@
 import os
+import librosa
 
 os.environ["KERAS_BACKEND"] = "tensorflow"
 
 import numpy as np
 
 import tensorflow as tf
+import soundfile as sf
+
 
 from pathlib import Path
 
@@ -13,11 +16,46 @@ from config import Config
 
 class DatasetGenerator:
 
+    # def __path_to_audio(self, path):
+    #     """Reads and decodes an audio file."""
+    #     audio = tf.io.read_file(path)
+    #     audio, _ = tf.audio.decode_wav(audio, 1, Config.sampling_rate)
+    #     return audio
     def __path_to_audio(self, path):
-        """Reads and decodes an audio file."""
+        """Reads and decodes an audio file and ensures it's of the correct length."""
         audio = tf.io.read_file(path)
         audio, _ = tf.audio.decode_wav(audio, 1, Config.sampling_rate)
+        audio = audio[: Config.sampling_rate]  # Trim to 1 second (16000 samples)
+        # Pad if audio is shorter than Config.sampling_rate
+        padding = Config.sampling_rate - tf.shape(audio)[0]
+        audio = tf.pad(audio, paddings=[[0, padding], [0, 0]], mode="CONSTANT")
         return audio
+
+    # def __path_to_audio(self, path):
+    #     """Reads and decodes an audio file, resamples if necessary, and ensures it's of the correct length."""
+    #     # Load audio using librosa to handle resampling
+    #     audio, sample_rate = librosa.load(path, sr=None, mono=True)
+
+    #     # Resample if the sample rate is different
+    #     if sample_rate != Config.sampling_rate:
+    #         print(f"Resampling from {sample_rate} Hz to {Config.sampling_rate} Hz")
+    #         audio = librosa.resample(
+    #             audio, orig_sr=sample_rate, target_sr=Config.sampling_rate
+    #         )
+    #         sample_rate = Config.sampling_rate
+
+    #     # Ensure audio is 1 second long (16000 samples)
+    #     if len(audio) < Config.sampling_rate:
+    #         # Pad with zeros
+    #         padding = Config.sampling_rate - len(audio)
+    #         audio = np.pad(audio, (0, padding), "constant")
+    #     else:
+    #         # Trim to 16000 samples
+    #         audio = audio[: Config.sampling_rate]
+
+    #     # Convert to tensor with shape (16000, 1)
+    #     audio = tf.expand_dims(audio, axis=-1)
+    #     return audio
 
     def __paths_and_labels_to_dataset(self, audio_paths, labels):
         """Constructs a dataset of audios and labels."""
@@ -58,6 +96,7 @@ class DatasetGenerator:
 
         # Return the absolute value of the first half of the FFT
         # which represents the positive frequencies
+
         return tf.math.abs(fft[:, : (audio.shape[1] // 2), :])
 
     # Get the list of audio file paths along with their corresponding labels
@@ -135,13 +174,38 @@ class DatasetGenerator:
 
         return train_ds, valid_ds
 
-    def generate_test_ds(self, noises):
-        test_ds = self.valid_ds.shuffle(
-            buffer_size=Config.batch_size * 8, seed=Config.shuffle_seed
-        ).batch(Config.batch_size)
+    # def generate_test_ds(self, noises):
+    #     test_ds = self.valid_ds.shuffle(
+    #         buffer_size=Config.batch_size * 8, seed=Config.shuffle_seed
+    #     ).batch(Config.batch_size)
+    #     test_ds = test_ds.map(
+    #         lambda x, y: (self.__add_noise(x, noises, scale=Config.scale), y),
+    #         # num_parallel_calls=tf.data.AUTOTUNE,
+    #     )
+
+    #     return test_ds
+
+    def generate_test_ds_from_paths(self, noises, audio_paths, labels):
+        # Load audio using librosa to handle resampling
+        for path in audio_paths:
+            y, sample_rate = librosa.load(path)
+            # Resample if the sample rate is different
+            if sample_rate != Config.sampling_rate:
+                print(f"Resampling from {sample_rate} Hz to {Config.sampling_rate} Hz")
+                y_resampled = librosa.resample(
+                    y, orig_sr=sample_rate, target_sr=Config.sampling_rate
+                )
+                sample_rate = Config.sampling_rate
+                sf.write(path, y_resampled, samplerate=Config.sampling_rate)
+        test_ds = self.__paths_and_labels_to_dataset(audio_paths, labels)
+        test_ds = test_ds.batch(Config.batch_size)
+
+        # Transform audio wave to frequency domain
         test_ds = test_ds.map(
-            lambda x, y: (self.__add_noise(x, noises, scale=Config.scale), y),
-            # num_parallel_calls=tf.data.AUTOTUNE,
+            lambda x, y: (self.audio_to_fft(x), y),
+            num_parallel_calls=tf.data.AUTOTUNE,
         )
+
+        test_ds = test_ds.prefetch(tf.data.AUTOTUNE)
 
         return test_ds
