@@ -1,11 +1,13 @@
 import os
+import numpy as np
+import time
+
 from data_preprocessing.audio_cutter import AudioCutter
 from config import Config
 from data_preprocessing.data_preparator import DataPreparator
 from data_preprocessing.dataset_generator import DatasetGenerator
 from nnmodel import NNModel
-import numpy as np
-import h5py
+
 
 
 def main():
@@ -19,7 +21,7 @@ def main():
     print("Noises moved to proper folders")
 
     class_names = os.listdir(Config.dataset_train_audio)
-    print("Found speakers: {}".format(class_names))
+    print(f"Found speakers: {class_names}")
 
     ds_generator = DatasetGenerator()
 
@@ -60,4 +62,6 @@ def main():
 
 
 if __name__ == "__main__":
+    start_time = time.time()
     main()
+    print(f"Execution took {time.time() - start_time} seconds")
