@@ -21,13 +21,10 @@ class AudioCutter:
         4. Saves subsegments to output_path
     """
 
-    def __init__(self, audio_path, subsegment_length=1000):
+    def __init__(self, audio_path, output_path, subsegment_length=1000):
         self.audio_path = audio_path
         self.audio_name = os.path.basename(audio_path)
-        if "train" in audio_path:
-            self.output_path = os.path.join(Config.dataset_train_audio, self.audio_name)
-        else:
-            self.output_path  = os.path.join(Config.dataset_test_audio, self.audio_name)
+        self.output_path =  os.path.join(output_path, self.audio_name)
         if os.path.exists(self.output_path):
             shutil.rmtree(self.output_path)
         os.makedirs(self.output_path)
