@@ -22,4 +22,3 @@ class Config:
     dataset_train_audio = os.path.join(dataset_train, audio_subfolder)
     dataset_train_noise = os.path.join(dataset_train, noise_subfolder)
     dataset_test_audio = os.path.join(dataset_test, audio_subfolder)
-    dataset_test_noise = os.path.join(dataset_test, noise_subfolder)
