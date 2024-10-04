@@ -48,12 +48,9 @@ def main():
     train_ds, valid_ds = ds_generator.generate_train_valid_ds(noises, class_names)
 
     nn_model = NNModel(len(class_names))
-    # nn_model.train(Config.epochs, train_ds, valid_ds)
+    nn_model.train(Config.epochs, train_ds, valid_ds)
 
     # Path to your test audio file
-    test_audio_path = "test_data/edzik2.wav"  # Replace with your actual path
-    # test_audio_paths = [test_audio_path]
-    # Assuming 'speaker_name' is one of your class names
     test_dir = "test_ds_dir/audio/edzik2.wav"  # C:\Work\python projects\speaker-identification\test_ds_dir\audio\edzik2.wav\1954 - 2954.wav
 
     file_paths = [
@@ -62,36 +59,21 @@ def main():
         if os.path.isfile(os.path.join(test_dir, f))
     ]
 
-    speaker_name = "edzik"  # Replace with actual speaker name
+    test_labels = [os.path.basename(os.path.dirname(file)) for file in file_paths]
 
-    # test_labels = [speaker_name]  # dummy label required by generate_test_ds_from_paths
-    test_labels = ["edzik" for path in file_paths]
-
-    print(file_paths)
-    print(test_labels)
-
-    # Generate the test dataset from the new audio file
-    # test_ds = ds_generator.generate_test_ds_from_paths(
-    #     noises, [test_audio_path], test_labels
-    # )
     test_ds = ds_generator.generate_test_ds_from_paths(noises, file_paths, test_labels)
 
-    for audios, labels in test_ds.take(1):
-        print("audios shape:", audios.shape)
-        # Get the signal FFT
-        ffts = ds_generator.audio_to_fft(audios)
-        print("ffts shape:", ffts.shape)
+    for audios, labels in test_ds:
 
         # Predict
         y_pred = nn_model.predict(audios)
-        print(y_pred)
+        # print(y_pred)
         y_pred = np.argmax(y_pred, axis=-1)
 
-        # Print the true and predicted labels
-
-        predicted_label = class_names[y_pred[0]]
-        print("Actual Speaker is edzik")
-        print("Predicted Speaker:", predicted_label)
+        for i in range(10):  # max is len(labels)
+            predicted_label = class_names[y_pred[i]]
+            print("Actual Speaker is", labels[i].numpy().decode("utf-8"))
+            print("Predicted Speaker:", predicted_label)
 
 
 if __name__ == "__main__":
