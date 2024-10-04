@@ -48,21 +48,33 @@ def main():
     train_ds, valid_ds = ds_generator.generate_train_valid_ds(noises, class_names)
 
     nn_model = NNModel(len(class_names))
-    nn_model.train(Config.epochs, train_ds, valid_ds)
+    # nn_model.train(Config.epochs, train_ds, valid_ds)
 
     # Path to your test audio file
     test_audio_path = "test_data/edzik2.wav"  # Replace with your actual path
     # test_audio_paths = [test_audio_path]
     # Assuming 'speaker_name' is one of your class names
+    test_dir = "test_ds_dir/audio/edzik2.wav"  # C:\Work\python projects\speaker-identification\test_ds_dir\audio\edzik2.wav\1954 - 2954.wav
+
+    file_paths = [
+        os.path.join(test_dir, f)
+        for f in os.listdir(test_dir)
+        if os.path.isfile(os.path.join(test_dir, f))
+    ]
 
     speaker_name = "edzik"  # Replace with actual speaker name
 
-    test_labels = [speaker_name]  # dummy label required by generate_test_ds_from_paths
+    # test_labels = [speaker_name]  # dummy label required by generate_test_ds_from_paths
+    test_labels = ["edzik" for path in file_paths]
+
+    print(file_paths)
+    print(test_labels)
 
     # Generate the test dataset from the new audio file
-    test_ds = ds_generator.generate_test_ds_from_paths(
-        noises, [test_audio_path], test_labels
-    )
+    # test_ds = ds_generator.generate_test_ds_from_paths(
+    #     noises, [test_audio_path], test_labels
+    # )
+    test_ds = ds_generator.generate_test_ds_from_paths(noises, file_paths, test_labels)
 
     for audios, labels in test_ds.take(1):
         print("audios shape:", audios.shape)
@@ -70,15 +82,8 @@ def main():
         ffts = ds_generator.audio_to_fft(audios)
         print("ffts shape:", ffts.shape)
 
-        # Ensure ffts has shape (batch_size, 8000, 1)
-        if ffts.shape[1] != 8000:
-            # Pad or trim ffts to have length 8000
-            ffts = tf.pad(ffts, [[0, 0], [0, max(0, 8000 - ffts.shape[1])], [0, 0]])
-            ffts = ffts[:, :8000, :]
-            print("ffts shape after padding/trimming:", ffts.shape)
-
         # Predict
-        y_pred = nn_model.predict(ffts)
+        y_pred = nn_model.predict(audios)
         print(y_pred)
         y_pred = np.argmax(y_pred, axis=-1)
 
