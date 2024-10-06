@@ -14,29 +14,9 @@ class DataPreparator:
     2. resampling audio subsegments to {Config.sample_rate}
     """
 
-    def ___move_files_to_proper_folders(self):
-        for folder in os.listdir(Config.dataset_root):
-            if os.path.isdir(os.path.join(Config.dataset_root, folder)):
-                if folder in ["other", "_background_noise_"]:
-                    # If folder is one of the folders that contains noise samples,
-                    # move it to the `noise` folder
-                    shutil.copytree(
-                        os.path.join(Config.dataset_root, folder),
-                        os.path.join(Config.dataset_train_noise, folder),
-                        dirs_exist_ok=True,
-                    )
-                else:
-                    # Otherwise, it should be a speaker folder, then move it to
-                    # `audio` folder
-                    shutil.copytree(
-                        os.path.join(Config.dataset_root, folder),
-                        os.path.join(Config.dataset_train_audio, folder),
-                        dirs_exist_ok=True,
-                    )
-
     def __resample(self, folder_path):
         files = os.listdir(folder_path)
-        
+
         for file in os.listdir(folder_path):
             file_path = os.path.join(folder_path, file)
 
@@ -47,7 +27,9 @@ class DataPreparator:
 
             sf.write(file_path, resampled_y, samplerate=Config.sampling_rate)
 
-        print(f"Resampled {len(files)} file in {folder_path} to {Config.sampling_rate}!")
+        print(
+            f"Resampled {len(files)} file in {folder_path} to {Config.sampling_rate}!"
+        )
 
     def __prepare_noise(self):
         """
@@ -104,7 +86,6 @@ class DataPreparator:
         return tf.stack(noises)
 
     def prepare(self, audio_name):
-        self.___move_files_to_proper_folders()
         noise_paths = self.__prepare_noise()
         self.__prepare_new_speaker(audio_name)
         return self.__load_noise(noise_paths)

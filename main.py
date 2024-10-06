@@ -7,16 +7,19 @@ from config import Config
 from data_preprocessing.data_preparator import DataPreparator
 from data_preprocessing.dataset_generator import DatasetGenerator
 from nnmodel import NNModel
-import numpy as np
-import tensorflow as tf
-
-import h5py
+from helpers import Helpers
 
 
 def main():
 
+    # TODO Remove this method - it's obsolety if we use already divided data
+    Helpers.move_base_data_to_proper_folders()
+
     # Loop over train data
     for folder in os.listdir("train_data"):
+        audio_path = os.path.join(
+            "train_data", folder
+        )  # We'll need to do this in the loop! For now it is what it is, basically loads audio for train and test and cuts it
         audio_path = os.path.join(
             "train_data", folder
         )  # We'll need to do this in the loop! For now it is what it is, basically loads audio for train and test and cuts it
