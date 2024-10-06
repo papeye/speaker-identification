@@ -1,35 +1,18 @@
 import os
-import shutil
-import librosa
+
+from helpers import Helpers
 from config import Config
 from pathlib import Path
-import soundfile as sf
+
 import tensorflow as tf
 
 
-class DataPreparator:
+class NoisePreparator:
     """
     DataPreparator handles
     1. Sorting files to respective folders (Config.dataset_audio_path, Config.dataset_noise_path)
     2. resampling audio subsegments to {Config.sample_rate}
     """
-
-    def __resample(self, folder_path):
-        files = os.listdir(folder_path)
-
-        for file in os.listdir(folder_path):
-            file_path = os.path.join(folder_path, file)
-
-            y, sr = librosa.load(file_path)
-            resampled_y = librosa.resample(
-                y, orig_sr=sr, target_sr=Config.sampling_rate
-            )
-
-            sf.write(file_path, resampled_y, samplerate=Config.sampling_rate)
-
-        print(
-            f"Resampled {len(files)} file in {folder_path} to {Config.sampling_rate}!"
-        )
 
     def __prepare_noise(self):
         """
@@ -55,13 +38,9 @@ class DataPreparator:
         )
 
         for folder in os.listdir(noise_folder):
-            self.__resample(os.path.join(noise_folder, folder))
+            Helpers.resampleAll(os.path.join(noise_folder, folder))
 
         return noise_paths
-
-    def __prepare_new_speaker(self, audio_name):
-        new_subsegments_folder = os.path.join(Config.dataset_train_audio, audio_name)
-        self.__resample(new_subsegments_folder)
 
     # Split noise into chunks of 16,000 steps each
     def __load_noise_sample(self, path):
@@ -85,7 +64,7 @@ class DataPreparator:
                 noises.extend(sample)
         return tf.stack(noises)
 
-    def prepare(self, audio_name):
+    def prepare(self):
         noise_paths = self.__prepare_noise()
-        self.__prepare_new_speaker(audio_name)
+
         return self.__load_noise(noise_paths)

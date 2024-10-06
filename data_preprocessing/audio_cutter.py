@@ -12,6 +12,20 @@ from data_preprocessing.models.segment import Segment
 from config import Config
 
 
+class AudiosCutter:
+
+    @staticmethod
+    def cut_all_into_segments(audios_dir, output_dir, subsegment_length=1000):
+
+        for audio in os.listdir(audios_dir):
+            audio_path = os.path.join(audios_dir, audio)
+            AudioCutter(audio_path, output_dir, subsegment_length).cutAndAddToBaseData()
+            print(
+                f"All audios from {audios_dir} cut into segments of length {subsegment_length} and saved to ",
+                output_dir,
+            )
+
+
 class AudioCutter:
     """
     Takes passed audio_path and:
