@@ -106,9 +106,9 @@ class DatasetGenerator:
         audio_paths = []
         labels = []
         for label, name in enumerate(class_names):
-            
+
             print(f"Processing speaker {name}")
-            
+
             dir_path = Path(Config.dataset_train_audio) / name
             speaker_sample_paths = [
                 os.path.join(dir_path, filepath)
@@ -118,7 +118,9 @@ class DatasetGenerator:
             audio_paths += speaker_sample_paths
             labels += [label] * len(speaker_sample_paths)
 
-        print(f"Found {len(audio_paths)} files belonging to {len(class_names)} classes.")
+        print(
+            f"Found {len(audio_paths)} files belonging to {len(class_names)} classes."
+        )
 
         # Shuffle
         rng = np.random.RandomState(Config.shuffle_seed)
@@ -128,14 +130,14 @@ class DatasetGenerator:
 
         # Split into training and validation
         num_val_samples = int(Config.valid_split * len(audio_paths))
-        
+
         print(f"Using {len(audio_paths) - num_val_samples} files for training.")
-        
+
         train_audio_paths = audio_paths[:-num_val_samples]
         train_labels = labels[:-num_val_samples]
 
         print(f"Using {num_val_samples} files for validation.")
-        
+
         valid_audio_paths = audio_paths[-num_val_samples:]
         valid_labels = labels[-num_val_samples:]
 
@@ -153,10 +155,10 @@ class DatasetGenerator:
         )
 
         # Add noise to the training set
-        train_ds = train_ds.map(
-            lambda x, y: (self.__add_noise(x, noises, scale=Config.scale), y),
-            num_parallel_calls=tf.data.AUTOTUNE,
-        )
+        # train_ds = train_ds.map(
+        #     lambda x, y: (self.__add_noise(x, noises, scale=Config.scale), y),
+        #     num_parallel_calls=tf.data.AUTOTUNE,
+        # )
 
         # Transform audio wave to the frequency domain using `audio_to_fft`
         train_ds = train_ds.map(
@@ -174,6 +176,7 @@ class DatasetGenerator:
 
         return train_ds, valid_ds
 
+<<<<<<< HEAD
     # def generate_test_ds(self, noises):
     #     test_ds = self.valid_ds.shuffle(
     #         buffer_size=Config.batch_size * 8, seed=Config.shuffle_seed
@@ -197,6 +200,9 @@ class DatasetGenerator:
                 )
                 sample_rate = Config.sampling_rate
                 sf.write(path, y_resampled, samplerate=Config.sampling_rate)
+=======
+    def generate_test_ds_from_paths(self, audio_paths, labels):
+>>>>>>> 5bbf8eb (Measure performance per test speaker)
         test_ds = self.__paths_and_labels_to_dataset(audio_paths, labels)
         test_ds = test_ds.batch(Config.batch_size)
 

@@ -1,5 +1,6 @@
 import keras
 from config import Config
+import tensorflow as tf
 
 
 class NNModel:
@@ -59,6 +60,6 @@ class NNModel:
 
     # def evaluate(self,valid_ds):
     #   return self.model.evaluate(valid_ds)
-
+    @tf.autograph.experimental.do_not_convert
     def predict(self, ffts):
         return self.model.predict(ffts)

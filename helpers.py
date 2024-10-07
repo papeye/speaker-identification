@@ -52,7 +52,6 @@ class Helpers:
             file_path = os.path.join(folder_path, file)
 
             if os.path.isdir(file_path):
-                print(f"folder {file_path}")
                 Helpers.resampleAll(file_path)
                 continue
 

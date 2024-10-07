@@ -21,7 +21,7 @@ class AudiosCutter:
             audio_path = os.path.join(audios_dir, audio)
             AudioCutter(audio_path, output_dir, subsegment_length).cutAndAddToBaseData()
             print(
-                f"All audios from {audios_dir} cut into segments of length {subsegment_length} and saved to ",
+                f"All audios from {audios_dir} cut into segments of length {subsegment_length/ 1000}s and saved to ",
                 output_dir,
             )
 
