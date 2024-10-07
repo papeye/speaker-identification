@@ -8,18 +8,28 @@ from data_preprocessing.data_preparator import DataPreparator
 from data_preprocessing.dataset_generator import DatasetGenerator
 from nnmodel import NNModel
 
-
-
 def main():
-    audio_path = "example_data/ryczekWav.wav"
-    audio_name = os.path.basename(audio_path)
-
-    AudioCutter(audio_path).cutAndAddToBaseData()
-    print("Audio cut and added to ", Config.dataset_train_audio)
     
+    #Loop over train data
+    for folder in os.listdir("train_data"):
+        audio_path = os.path.join("train_data", folder) #We'll need to do this in the loop! For now it is what it is, basically loads audio for train and test and cuts it
+        audio_name = os.path.basename(audio_path)
+        output_path = Config.dataset_train_audio
 
-    noises = DataPreparator().prepare(audio_name)
-    print("Noises moved to proper folders")
+        AudioCutter(audio_path, output_path).cutAndAddToBaseData()
+        print("Audio cut and added to ", output_path)
+
+        noises = DataPreparator().prepare(audio_name)
+        print("Noises moved to proper folders")
+        
+    #Loop over test data
+    for folder in os.listdir("test_data"):
+        audio_path = os.path.join("test_data", folder) #We'll need to do this in the loop! For now it is what it is, basically loads audio for train and test and cuts it
+        audio_name = os.path.basename(audio_path)
+        output_path = Config.dataset_test_audio
+
+        AudioCutter(audio_path, output_path).cutAndAddToBaseData()
+        print("Audio cut and added to ", output_path)
 
     class_names = os.listdir(Config.dataset_train_audio)
     print(f"Found speakers: {class_names}")
