@@ -99,9 +99,10 @@ class DatasetGenerator:
 
         return tf.math.abs(fft[:, : (audio.shape[1] // 2), :])
 
-    # Get the list of audio file paths along with their corresponding labels
+    def __audio_paths_and_labels(self, dir):
+        class_names = os.listdir(dir)
 
-    def generate_train_valid_ds(self, noises, class_names):
+        print(f"Speakers found for {dir}: {class_names}")
 
         audio_paths = []
         labels = []
@@ -109,7 +110,7 @@ class DatasetGenerator:
 
             print(f"Processing speaker {name}")
 
-            dir_path = Path(Config.dataset_train_audio) / name
+            dir_path = Path(dir) / name
             speaker_sample_paths = [
                 os.path.join(dir_path, filepath)
                 for filepath in os.listdir(dir_path)
@@ -120,6 +121,15 @@ class DatasetGenerator:
 
         print(
             f"Found {len(audio_paths)} files belonging to {len(class_names)} classes."
+        )
+
+        return audio_paths, labels, class_names
+
+    # Get the list of audio file paths along with their corresponding labels
+
+    def generate_train_valid_ds(self, noises):
+        audio_paths, labels, class_names = self.__audio_paths_and_labels(
+            Config.dataset_train_audio
         )
 
         # Shuffle
@@ -174,35 +184,13 @@ class DatasetGenerator:
         self.valid_audio_paths = valid_audio_paths
         self.valid_labels = valid_labels
 
-        return train_ds, valid_ds
+        return train_ds, valid_ds, class_names
 
-<<<<<<< HEAD
-    # def generate_test_ds(self, noises):
-    #     test_ds = self.valid_ds.shuffle(
-    #         buffer_size=Config.batch_size * 8, seed=Config.shuffle_seed
-    #     ).batch(Config.batch_size)
-    #     test_ds = test_ds.map(
-    #         lambda x, y: (self.__add_noise(x, noises, scale=Config.scale), y),
-    #         # num_parallel_calls=tf.data.AUTOTUNE,
-    #     )
+    def generate_test_ds_from_paths(self):
+        audio_paths, labels, class_names = self.__audio_paths_and_labels(
+            Config.dataset_test
+        )
 
-    #     return test_ds
-
-    def generate_test_ds_from_paths(self, noises, audio_paths, labels):
-        # Load audio using librosa to handle resampling
-        for path in audio_paths:
-            y, sample_rate = librosa.load(path)
-            # Resample if the sample rate is different
-            if sample_rate != Config.sampling_rate:
-                print(f"Resampling from {sample_rate} Hz to {Config.sampling_rate} Hz")
-                y_resampled = librosa.resample(
-                    y, orig_sr=sample_rate, target_sr=Config.sampling_rate
-                )
-                sample_rate = Config.sampling_rate
-                sf.write(path, y_resampled, samplerate=Config.sampling_rate)
-=======
-    def generate_test_ds_from_paths(self, audio_paths, labels):
->>>>>>> 5bbf8eb (Measure performance per test speaker)
         test_ds = self.__paths_and_labels_to_dataset(audio_paths, labels)
         test_ds = test_ds.batch(Config.batch_size)
 
