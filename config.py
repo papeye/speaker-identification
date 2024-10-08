@@ -23,4 +23,4 @@ class Config:
     sampling_rate = 16000
     scale = 0.5
     batch_size = 128
-    epochs = 3
+    epochs = 1
