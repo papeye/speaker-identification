@@ -37,9 +37,6 @@ class NoisePreparator:
             f"Found {len(noise_paths)} files belonging to {len(os.listdir(Config.dataset_train_noise))} directories"
         )
 
-        for folder in os.listdir(noise_folder):
-            Helpers.resampleAll(os.path.join(noise_folder, folder))
-
         return noise_paths
 
     # Split noise into chunks of 16,000 steps each

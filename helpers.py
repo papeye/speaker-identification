@@ -42,26 +42,3 @@ class Helpers:
                         os.path.join(Config.dataset_train_audio, folder),
                         dirs_exist_ok=True,
                     )
-
-    @staticmethod
-    def resampleAll(folder_path):
-        """Resamples all files in the folder_path and all subfolders to Config.sampling_rate"""
-        files = os.listdir(folder_path)
-
-        for file in files:
-            file_path = os.path.join(folder_path, file)
-
-            if os.path.isdir(file_path):
-                Helpers.resampleAll(file_path)
-                continue
-
-            y, sr = librosa.load(file_path)
-            resampled_y = librosa.resample(
-                y, orig_sr=sr, target_sr=Config.sampling_rate
-            )
-
-            sf.write(file_path, resampled_y, samplerate=Config.sampling_rate)
-
-        print(
-            f"Resampled {len(files)} files in {folder_path} to {Config.sampling_rate}!"
-        )

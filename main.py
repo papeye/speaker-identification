@@ -21,8 +21,6 @@ def main():
     # train data preparation
     AudiosCutter.cut_all_into_segments(train_data_dir, Config.dataset_train_audio)
 
-    Helpers.resampleAll(Config.dataset_train_audio)
-
     # noise preparation
     noises = NoisePreparator().prepare()
     print("Noises moved to proper folders")
@@ -33,7 +31,6 @@ def main():
 
     # test data preparation
     AudiosCutter.cut_all_into_segments(test_data_dir, Config.dataset_test)
-    Helpers.resampleAll(Config.dataset_test)
 
     # training
     nn_model = NNModel(len(class_names))

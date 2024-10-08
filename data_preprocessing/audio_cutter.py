@@ -110,6 +110,7 @@ class AudioCutter:
 
             segment_output = os.path.join(self.output_path, file_name)
             new_audio = audio[start:end]
+            new_audio = new_audio.set_frame_rate(Config.sampling_rate)
             new_audio.export(segment_output, format="wav")
 
         print(f"Saved {len(subsegments)} subsegments to {self.output_path}")
