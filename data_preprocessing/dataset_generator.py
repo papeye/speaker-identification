@@ -155,10 +155,6 @@ class TrainDSGenerator(_DatasetGenerator):
         return train_ds, valid_ds, class_names
 
 
-<<<<<<< HEAD
-        test_ds = self.__paths_and_labels_to_dataset(audio_paths, labels)
-        test_ds = test_ds.batch(len(audio_paths))
-=======
 class TestDSGenerator(_DatasetGenerator):
     def generate_test_ds(self):
         _super = super()
@@ -166,8 +162,7 @@ class TestDSGenerator(_DatasetGenerator):
         audio_paths, labels, _ = _super.audio_paths_and_labels(Config.dataset_test)
 
         test_ds = _super.paths_and_labels_to_dataset(audio_paths, labels)
-        test_ds = test_ds.batch(Config.batch_size)
->>>>>>> 26059c7 (Introduce abstract class DataSet generators and extend it in train and test ds generators)
+        test_ds = test_ds.batch(len(audio_paths))
 
         test_ds = test_ds.map(
             lambda x, y: (self.audio_to_fft(x), y),
