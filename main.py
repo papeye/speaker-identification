@@ -1,8 +1,8 @@
-import os
 import numpy as np
 import time
+from collections import Counter
 
-from data_preprocessing.audio_cutter import AudioCutter, AudiosCutter
+from data_preprocessing.audio_cutter import AudiosCutter
 from config import Config
 from data_preprocessing.data_preparator import NoisePreparator
 from data_preprocessing.dataset_generator import DatasetGenerator
@@ -38,12 +38,14 @@ def main():
 
     test_ds = ds_generator.generate_test_ds_from_paths()
 
-    for audios, labels in test_ds.take(1):  # loop over batches
+    for audios, _ in test_ds:  # loop over batches
         y_pred = nn_model.predict(audios)
         y_pred = np.argmax(y_pred, axis=-1)
 
-        predicted_label = class_names[y_pred[0]]
-        print("Predicted Speaker:", predicted_label)
+        predicted_labels = [class_names[i] for i in y_pred]
+
+        for label, count in Counter(predicted_labels).items():
+            print(f"{label} : {count} / {len(predicted_labels)}")
 
 
 if __name__ == "__main__":

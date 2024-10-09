@@ -192,7 +192,7 @@ class DatasetGenerator:
         )
 
         test_ds = self.__paths_and_labels_to_dataset(audio_paths, labels)
-        test_ds = test_ds.batch(Config.batch_size)
+        test_ds = test_ds.batch(len(audio_paths))
 
         # Transform audio wave to frequency domain
         test_ds = test_ds.map(
