@@ -5,7 +5,7 @@ from collections import Counter
 from data_preprocessing.audio_cutter import AudiosCutter
 from config import Config
 from data_preprocessing.data_preparator import NoisePreparator
-from data_preprocessing.dataset_generator import DatasetGenerator
+from data_preprocessing.dataset_generator import TrainDSGenerator, TestDSGenerator
 from nnmodel import NNModel
 from helpers import Helpers
 
@@ -25,9 +25,7 @@ def main():
     noises = NoisePreparator().prepare()
     print("Noises moved to proper folders")
 
-    ds_generator = DatasetGenerator()
-
-    train_ds, valid_ds, class_names = ds_generator.generate_train_valid_ds(noises)
+    train_ds, valid_ds, class_names = TrainDSGenerator().generate_train_valid_ds(noises)
 
     # test data preparation
     AudiosCutter.cut_all_into_segments(test_data_dir, Config.dataset_test)
@@ -36,7 +34,7 @@ def main():
     nn_model = NNModel(len(class_names))
     nn_model.train(Config.epochs, train_ds, valid_ds)
 
-    test_ds = ds_generator.generate_test_ds_from_paths()
+    test_ds = TestDSGenerator().generate_test_ds()
 
     for audios, _ in test_ds:  # loop over batches
         y_pred = nn_model.predict(audios)
