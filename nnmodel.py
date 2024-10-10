@@ -58,6 +58,11 @@ class NNModel:
             callbacks=[self.earlystopping_cb, self.mdlcheckpoint_cb],
         )
 
+        self.model.save_weights("weights.weights.h5")
+
+    def load(self):
+        self.model.load_weights("weights.weights.h5")
+
     # def evaluate(self,valid_ds):
     #   return self.model.evaluate(valid_ds)
     @tf.autograph.experimental.do_not_convert

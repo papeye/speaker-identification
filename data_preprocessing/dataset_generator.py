@@ -65,10 +65,7 @@ class _DatasetGenerator(ABC):
         return tf.math.abs(fft[:, : (audio.shape[1] // 2), :])
 
     def audio_paths_and_labels(self, dir):
-        class_names = os.listdir(dir)
-
-        print(f"Speakers found for {dir}: {class_names}")
-
+        class_names = self.class_names(dir)
         audio_paths = []
         labels = []
         for label, name in enumerate(class_names):
@@ -91,6 +88,9 @@ class _DatasetGenerator(ABC):
         return audio_paths, labels, class_names
 
     # Get the list of audio file paths along with their corresponding labels
+
+    def class_names(self, dir):
+        return os.listdir(dir)
 
 
 class TrainDSGenerator(_DatasetGenerator):

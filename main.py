@@ -1,6 +1,7 @@
 import numpy as np
 import time
 from collections import Counter
+import os
 
 from data_preprocessing.audio_cutter import AudiosCutter
 from config import Config
@@ -10,29 +11,44 @@ from nnmodel import NNModel
 from helpers import Helpers
 
 
+train = False
+
+
 def main():
 
-    train_data_dir = "example_data/train_data"
-    test_data_dir = "example_data/test_data"
+    if train:
+        train_data_dir = "example_data/train_data"
+        test_data_dir = "example_data/test_data"
 
-    # base data preparation
-    Helpers.move_base_data_to_proper_folders()  # TODO Remove this method - it's obsolety if we use already divided data
+        # base data preparation
+        Helpers.move_base_data_to_proper_folders()  # TODO Remove this method - it's obsolety if we use already divided data
 
-    # train data preparation
-    AudiosCutter.cut_all_into_segments(train_data_dir, Config.dataset_train_audio)
+        # train data preparation
+        AudiosCutter.cut_all_into_segments(train_data_dir, Config.dataset_train_audio)
 
-    # noise preparation
-    noises = NoisePreparator().prepare()
-    print("Noises moved to proper folders")
+        # noise preparation
+        noises = NoisePreparator().prepare()
+        print("Noises moved to proper folders")
 
-    train_ds, valid_ds, class_names = TrainDSGenerator().generate_train_valid_ds(noises)
+        train_ds, valid_ds, class_names = TrainDSGenerator().generate_train_valid_ds(
+            noises
+        )
 
-    # test data preparation
-    AudiosCutter.cut_all_into_segments(test_data_dir, Config.dataset_test)
+        # test data preparation
+        AudiosCutter.cut_all_into_segments(test_data_dir, Config.dataset_test)
 
-    # training
-    nn_model = NNModel(len(class_names))
-    nn_model.train(Config.epochs, train_ds, valid_ds)
+        # training
+        nn_model = NNModel(len(class_names))
+        nn_model.train(Config.epochs, train_ds, valid_ds)
+
+    else:
+
+        class_names = os.listdir(
+            Config.dataset_train_audio
+        )  # Config.dataset_train_audio should be already generated grom previous runs, if not run with training
+
+        nn_model = NNModel(len(class_names))
+        nn_model.load()
 
     test_ds = TestDSGenerator().generate_test_ds()
 
