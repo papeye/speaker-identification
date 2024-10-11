@@ -65,7 +65,7 @@ class _DatasetGenerator(ABC):
         return tf.math.abs(fft[:, : (audio.shape[1] // 2), :])
 
     def audio_paths_and_labels(self, dir):
-        class_names = self.class_names(dir)
+        class_names = os.listdir(dir)
         audio_paths = []
         labels = []
         for label, name in enumerate(class_names):
@@ -85,21 +85,16 @@ class _DatasetGenerator(ABC):
             f"Found {len(audio_paths)} files belonging to {len(class_names)} classes."
         )
 
-        return audio_paths, labels, class_names
+        return audio_paths, labels
 
     # Get the list of audio file paths along with their corresponding labels
-
-    def class_names(self, dir):
-        return os.listdir(dir)
 
 
 class TrainDSGenerator(_DatasetGenerator):
     def generate_train_valid_ds(self, noises):
         _super = super()
 
-        audio_paths, labels, class_names = _super.audio_paths_and_labels(
-            Config.dataset_train_audio
-        )
+        audio_paths, labels = _super.audio_paths_and_labels(Config.dataset_train_audio)
 
         # Shuffle
         rng = np.random.RandomState(Config.shuffle_seed)
@@ -152,14 +147,14 @@ class TrainDSGenerator(_DatasetGenerator):
         )
         valid_ds = valid_ds.prefetch(tf.data.AUTOTUNE)
 
-        return train_ds, valid_ds, class_names
+        return train_ds, valid_ds
 
 
 class TestDSGenerator(_DatasetGenerator):
     def generate_test_ds(self):
         _super = super()
 
-        audio_paths, labels, _ = _super.audio_paths_and_labels(Config.dataset_test)
+        audio_paths, labels = _super.audio_paths_and_labels(Config.dataset_test)
 
         test_ds = _super.paths_and_labels_to_dataset(audio_paths, labels)
         test_ds = test_ds.batch(len(audio_paths))
