@@ -43,19 +43,17 @@ def main():
 
     test_ds = TestDSGenerator().generate_test_ds()
 
-    class_names = nn_model.speaker_labels
+    predictions = nn_model.predict(test_ds)
 
-    for audios, _ in test_ds:  # loop over batches
-        y_pred = nn_model.predict(audios)
-        y_pred = np.argmax(y_pred, axis=-1)
-
-        predicted_labels = [class_names[i] for i in y_pred]
-
-        for label, count in Counter(predicted_labels).items():
-            print(f"{label} : {count} / {len(predicted_labels)}")
+    printPrettyDict(predictions)
 
 
 if __name__ == "__main__":
     start_time = time.time()
     main()
     print(f"Execution took {time.time() - start_time} seconds")
+
+
+def printPrettyDict(dict):
+    for key, value in dict.items():
+        print(key, value, sep=":", end="\n")
