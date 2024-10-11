@@ -12,6 +12,20 @@ from data_preprocessing.models.segment import Segment
 from config import Config
 
 
+class AudiosCutter:
+
+    @staticmethod
+    def cut_all_into_segments(audios_dir, output_dir, subsegment_length=1000):
+
+        for audio in os.listdir(audios_dir):
+            audio_path = os.path.join(audios_dir, audio)
+            AudioCutter(audio_path, output_dir, subsegment_length).cutAndAddToBaseData()
+            print(
+                f"All audios from {audios_dir} cut into segments of length {subsegment_length/ 1000}s and saved to ",
+                output_dir,
+            )
+
+
 class AudioCutter:
     """
     Takes passed audio_path and:
@@ -24,7 +38,7 @@ class AudioCutter:
     def __init__(self, audio_path, output_path, subsegment_length=1000):
         self.audio_path = audio_path
         self.audio_name = os.path.basename(audio_path)
-        self.output_path =  os.path.join(output_path, self.audio_name)
+        self.output_path = os.path.join(output_path, self.audio_name)
         if os.path.exists(self.output_path):
             shutil.rmtree(self.output_path)
         os.makedirs(self.output_path)
@@ -32,30 +46,33 @@ class AudioCutter:
 
     def __diarize(self):
         start_time = time.time()
-        
-        model = Model.from_pretrained("pyannote/segmentation", 
-                              use_auth_token=Config.hugging_face_token)
 
+        model = Model.from_pretrained(
+            "pyannote/segmentation", use_auth_token=Config.hugging_face_token
+        )
 
         pipeline = VoiceActivityDetection(segmentation=model)
-        
+
         HYPER_PARAMETERS = {
-          # onset/offset activation thresholds
-          "onset": 0.5, "offset": 0.5,
-          # remove speech regions shorter than that many seconds.
-          "min_duration_on": 1.0,
-          # fill non-speech regions shorter than that many seconds.
-          "min_duration_off": 0.0
+            # onset/offset activation thresholds
+            "onset": 0.5,
+            "offset": 0.5,
+            # remove speech regions shorter than that many seconds.
+            "min_duration_on": 1.0,
+            # fill non-speech regions shorter than that many seconds.
+            "min_duration_off": 0.0,
         }
         pipeline.instantiate(HYPER_PARAMETERS)
         diarization = pipeline(self.audio_path)
-        
-        
+
         segments = [
-          Segment(int(speech.start * 1000), int(speech.end * 1000), self.audio_name) for speech in diarization.get_timeline().support()
+            Segment(int(speech.start * 1000), int(speech.end * 1000), self.audio_name)
+            for speech in diarization.get_timeline().support()
         ]
 
-        print(f"Diarization took {time.time() - start_time} seconds and found {len(segments)} segments")
+        print(
+            f"Diarization took {time.time() - start_time} seconds and found {len(segments)} segments"
+        )
 
         return segments
 
@@ -74,7 +91,9 @@ class AudioCutter:
                 s_start = s_start + self.subsegment_length
                 s_end = s_start + self.subsegment_length
 
-        print(f"Audio cut into {len(subsegments)} subsegments of length {self.subsegment_length / 1000}s")
+        print(
+            f"Audio cut into {len(subsegments)} subsegments of length {self.subsegment_length / 1000}s"
+        )
 
         return subsegments
 
@@ -91,8 +110,9 @@ class AudioCutter:
 
             segment_output = os.path.join(self.output_path, file_name)
             new_audio = audio[start:end]
+            new_audio = new_audio.set_frame_rate(Config.sampling_rate)
             new_audio.export(segment_output, format="wav")
-        
+
         print(f"Saved {len(subsegments)} subsegments to {self.output_path}")
 
     def cutAndAddToBaseData(self):
