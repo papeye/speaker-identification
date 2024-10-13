@@ -2,12 +2,12 @@ import numpy as np
 import time
 from collections import Counter
 
-from data_preprocessing.audio_cutter import AudiosCutter
+from data_preprocessing.audio_cutter import cut_all_into_segments
 from config import Config
-from data_preprocessing.data_preparator import NoisePreparator
+from data_preprocessing.noise_preparator import prepareNoise
 from data_preprocessing.dataset_generator import TrainDSGenerator, TestDSGenerator
 from nnmodel import NNModel
-from helpers import Helpers
+from helpers import move_base_data_to_proper_folders
 from training_type import TrainingType
 
 """ Flags for execution control"""
@@ -24,12 +24,12 @@ def main():
     test_data_dir = "example_data/test_data"
 
     if TRAINING_TYPE.prepareTrainData():
-        Helpers.move_base_data_to_proper_folders()  # TODO Remove this method - it's obsolete if we use already divided data
+        move_base_data_to_proper_folders()  # TODO Remove this method - it's obsolete if we use already divided data
 
         # train data preparation
-        AudiosCutter.cut_all_into_segments(train_data_dir, Config.dataset_train_audio)
+        cut_all_into_segments(train_data_dir, Config.dataset_train_audio)
 
-        noises = NoisePreparator().prepare() if ADD_NOISE_TO_TRAINING_DATA else None
+        noises = prepareNoise() if ADD_NOISE_TO_TRAINING_DATA else None
 
     nn_model = NNModel()
 
