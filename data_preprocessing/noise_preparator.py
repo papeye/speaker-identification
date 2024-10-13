@@ -56,7 +56,7 @@ def __load_noise(noise_paths):
     return tf.stack(noises)
 
 
-def prepareNoise():
+def prepare_noise():
     noise_paths = __prepare_noise()
 
     noises = __load_noise(noise_paths)

@@ -6,7 +6,7 @@ class TrainingType(Enum):
     TRAIN_ONLY = 2
     NO_TRAINING = 3
 
-    def prepareTrainData(self):
+    def prepare_train_data(self):
         return self == TrainingType.PREPARE_DATA_AND_TRAIN
 
     def train(self):

@@ -39,3 +39,8 @@ def move_base_data_to_proper_folders():
                     os.path.join(Config.dataset_train_audio, folder),
                     dirs_exist_ok=True,
                 )
+
+
+def print_pretty_dict(dict):
+    for key, value in dict.items():
+        print(key, value, sep=":", end="\n")
