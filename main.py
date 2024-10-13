@@ -8,11 +8,14 @@ from data_preprocessing.data_preparator import NoisePreparator
 from data_preprocessing.dataset_generator import TrainDSGenerator, TestDSGenerator
 from nnmodel import NNModel
 from helpers import Helpers
-
+from training_type import TrainingType
 
 """ Flags for execution control"""
-PREPARE_TRAIN_DATA = True
-TRAIN = True
+TRAINING_TYPE = TrainingType.PREPARE_DATA_AND_TRAIN
+# TRAINING_TYPE = TrainingType.TRAIN_ONLY
+# TRAINING_TYPE = TrainingType.NO_TRAINING
+
+ADD_NOISE_TO_TRAINING_DATA = False
 PREPARE_TEST_DATA = True
 
 
@@ -20,19 +23,17 @@ def main():
     train_data_dir = "example_data/train_data"
     test_data_dir = "example_data/test_data"
 
-    if PREPARE_TRAIN_DATA:
+    if TRAINING_TYPE.prepareTrainData():
         Helpers.move_base_data_to_proper_folders()  # TODO Remove this method - it's obsolete if we use already divided data
 
         # train data preparation
         AudiosCutter.cut_all_into_segments(train_data_dir, Config.dataset_train_audio)
 
-        # noise preparation
-        noises = NoisePreparator().prepare()
-        print("Noises moved to proper folders")
+        noises = NoisePreparator().prepare() if ADD_NOISE_TO_TRAINING_DATA else None
 
     nn_model = NNModel()
 
-    if TRAIN or PREPARE_TRAIN_DATA:  # if we prepare data, we need to train model
+    if TRAINING_TYPE.train():  # if we prepare data, we need to train model
         train_ds, valid_ds = TrainDSGenerator().generate_train_valid_ds(noises)
         nn_model.train(train_ds, valid_ds)
     else:

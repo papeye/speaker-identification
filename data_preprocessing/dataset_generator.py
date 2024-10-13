@@ -128,11 +128,12 @@ class TrainDSGenerator(_DatasetGenerator):
             32
         )
 
-        # Add noise to the training set
-        # train_ds = train_ds.map(
-        #     lambda x, y: (self.__add_noise(x, noises, scale=Config.scale), y),
-        #     num_parallel_calls=tf.data.AUTOTUNE,
-        # )
+        if noises is not None:
+            # Add noise to the training set
+            train_ds = train_ds.map(
+                lambda x, y: (self.__add_noise(x, noises, scale=Config.scale), y),
+                num_parallel_calls=tf.data.AUTOTUNE,
+            )
 
         # Transform audio wave to the frequency domain using `audio_to_fft`
         train_ds = train_ds.map(
