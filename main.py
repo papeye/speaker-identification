@@ -6,7 +6,7 @@ from config import Config
 from data_preprocessing.data_preparator import NoisePreparator
 from data_preprocessing.dataset_generator import TrainDSGenerator, TestDSGenerator
 from nnmodel import NNModel
-from helpers import Helpers
+from helpers import move_files, move_base_data_to_proper_folders, printPrettyDict
 from training_type import TrainingType
 
 """ Flags for execution control"""
@@ -23,7 +23,7 @@ def main():
     test_data_dir = "example_data/test_data"
 
     if TRAINING_TYPE.prepareTrainData():
-        Helpers.move_base_data_to_proper_folders()  # TODO Remove this method - it's obsolete if we use already divided data
+        move_base_data_to_proper_folders()  # TODO Remove this method - it's obsolete if we use already divided data
 
         # train data preparation
         AudiosCutter.cut_all_into_segments(train_data_dir, Config.dataset_train_audio)
@@ -40,16 +40,17 @@ def main():
 
     if PREPARE_TEST_DATA:
         for file in os.listdir(test_data_dir):
-            path=os.path.join(test_data_dir,file)
-            target=os.path.join(Config.dataset_test,file)
+            path = os.path.join(test_data_dir, file)
+            target = os.path.join(Config.dataset_test, file)
             AudioCutter(path, target).cut()
 
     for dir in os.listdir(Config.dataset_test):
-        path=os.path.join(Config.dataset_test,dir)
+        path = os.path.join(Config.dataset_test, dir)
         test_ds = TestDSGenerator().generate_test_ds(path)
         predictions = nn_model.predict(test_ds)
         print(f"Correct speaker: {dir}")
-        Helpers.printPrettyDict(predictions)
+        printPrettyDict(predictions)
+
 
 if __name__ == "__main__":
     start_time = time.time()
