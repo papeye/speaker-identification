@@ -1,12 +1,15 @@
 import time
 import os
 
-from data_preprocessing.audio_cutter import AudioCutter, cut_all_into_segments
 from config import Config
-from data_preprocessing.noise_preparator import prepareNoise
-from data_preprocessing.dataset_generator import TrainDSGenerator, TestDSGenerator
-from nnmodel import NNModel
 from helpers import move_base_data_to_proper_folders, printPrettyDict
+from data_preprocessing.audio_cutter import AudioCutter, cut_all_into_segments
+from data_preprocessing.noise_preparator import prepareNoise
+from data_preprocessing.dataset_generator import (
+    generate_train_valid_ds,
+    generate_test_ds,
+)
+from nnmodel import NNModel
 from training_type import TrainingType
 
 """ Flags for execution control"""
@@ -32,7 +35,7 @@ def main():
     nn_model = NNModel()
 
     if TRAINING_TYPE.train:
-        train_ds, valid_ds = TrainDSGenerator().generate_train_valid_ds(noises)
+        train_ds, valid_ds = generate_train_valid_ds(noises)
         nn_model.train(train_ds, valid_ds)
     else:
         nn_model.load()
@@ -45,7 +48,7 @@ def main():
 
     for dir in os.listdir(Config.dataset_test):
         path = os.path.join(Config.dataset_test, dir)
-        test_ds = TestDSGenerator().generate_test_ds(path)
+        test_ds = generate_test_ds(path)
         predictions = nn_model.predict(test_ds)
         print(f"Correct speaker: {dir}")
         printPrettyDict(predictions)
