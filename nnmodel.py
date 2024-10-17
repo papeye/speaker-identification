@@ -1,11 +1,15 @@
 import keras
 from config import Config
 import tensorflow as tf
+import os
 
 
 class NNModel:
-    def __init__(self, num_classes):
-        self.model = self.__build_model((Config.sampling_rate // 2, 1), num_classes)
+    def __init__(self):
+        self.speaker_labels = os.listdir(Config.dataset_train_audio)
+        self.model = self.__build_model(
+            (Config.sampling_rate // 2, 1), len(self.speaker_labels)
+        )
         self.model.compile(
             optimizer="Adam",
             loss="sparse_categorical_crossentropy",
@@ -50,13 +54,18 @@ class NNModel:
 
         return keras.models.Model(inputs=inputs, outputs=outputs)
 
-    def train(self, epochs, train_ds, valid_ds):
+    def train(self, train_ds, valid_ds):
         history = self.model.fit(
             train_ds,
-            epochs=epochs,
+            epochs=Config.epochs,
             validation_data=valid_ds,
             callbacks=[self.earlystopping_cb, self.mdlcheckpoint_cb],
         )
+
+        self.model.save_weights("weights.weights.h5")
+
+    def load(self):
+        self.model.load_weights("weights.weights.h5")
 
     # def evaluate(self,valid_ds):
     #   return self.model.evaluate(valid_ds)
