@@ -43,13 +43,15 @@ def main():
     if PREPARE_TEST_DATA:
         for file in os.listdir(test_data_dir):
             path = os.path.join(test_data_dir, file)
-            target = os.path.join(Config.dataset_test, file)
-            AudioCutter(path, target).cut()
+            AudioCutter(path, Config.dataset_test).cut()
 
     for dir in os.listdir(Config.dataset_test):
         path = os.path.join(Config.dataset_test, dir)
-        test_ds = generate_test_ds(path)
+
+        test_ds = generate_test_ds(path, dir)
+
         predictions = nn_model.predict(test_ds)
+
         print(f"Correct speaker: {dir}")
         printPrettyDict(predictions)
 

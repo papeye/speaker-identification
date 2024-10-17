@@ -66,6 +66,18 @@ def __audio_to_fft(audio):
     return tf.math.abs(fft[:, : (audio.shape[1] // 2), :])
 
 
+def __speaker_sample_paths(dir, label):
+    labels = []
+    audio_paths = [
+        os.path.join(dir, filepath)
+        for filepath in os.listdir(dir)
+        if filepath.endswith(".wav")
+    ]
+    labels += [label] * len(audio_paths)
+
+    return audio_paths, labels
+
+
 def __audio_paths_and_labels(dir):
     class_names = os.listdir(dir)
     audio_paths = []
@@ -75,13 +87,11 @@ def __audio_paths_and_labels(dir):
         print(f"Processing speaker {name}")
 
         dir_path = Path(dir) / name
-        speaker_sample_paths = [
-            os.path.join(dir_path, filepath)
-            for filepath in os.listdir(dir_path)
-            if filepath.endswith(".wav")
-        ]
+
+        speaker_sample_paths, labels_speaker = __speaker_sample_paths(dir_path, label)
+
         audio_paths += speaker_sample_paths
-        labels += [label] * len(speaker_sample_paths)
+        labels += labels_speaker
 
     print(f"Found {len(audio_paths)} files belonging to {len(class_names)} classes.")
 
@@ -144,9 +154,9 @@ def generate_train_valid_ds(noises):
     return train_ds, valid_ds
 
 
-def generate_test_ds(path):
+def generate_test_ds(path, label):
 
-    audio_paths, labels = __audio_paths_and_labels(path)
+    audio_paths, labels = __speaker_sample_paths(path, label)
 
     test_ds = __paths_and_labels_to_dataset(audio_paths, labels)
     test_ds = test_ds.batch(len(audio_paths))
