@@ -64,4 +64,8 @@ class NoisePreparator:
     def prepare(self):
         noise_paths = self.__prepare_noise()
 
-        return self.__load_noise(noise_paths)
+        noises = self.__load_noise(noise_paths)
+
+        print("Noises moved to proper folders")
+
+        return noises
