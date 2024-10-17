@@ -1,7 +1,9 @@
 import keras
-from config import Config
-import tensorflow as tf
 import os
+import numpy as np
+from collections import Counter
+
+from config import Config
 
 
 class NNModel:
@@ -67,8 +69,19 @@ class NNModel:
     def load(self):
         self.model.load_weights("weights.weights.h5")
 
-    # def evaluate(self,valid_ds):
-    #   return self.model.evaluate(valid_ds)
-    @tf.autograph.experimental.do_not_convert
-    def predict(self, ffts):
-        return self.model.predict(ffts)
+    def predict(self, test_ds):
+
+        audios, _ = next(iter(test_ds))
+
+        y_pred = self.model.predict(audios)
+        y_pred = np.argmax(y_pred, axis=-1)
+
+        predicted_labels = [self.speaker_labels[i] for i in y_pred]
+        occurrences_per_speaker = dict(Counter(predicted_labels))
+
+        occurrences_percentage = {
+            speaker: (occurrences / len(predicted_labels)) * 100
+            for speaker, occurrences in occurrences_per_speaker.items()
+        }
+
+        return occurrences_percentage
