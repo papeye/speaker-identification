@@ -42,3 +42,8 @@ class Helpers:
                         os.path.join(Config.dataset_train_audio, folder),
                         dirs_exist_ok=True,
                     )
+
+    @staticmethod
+    def printPrettyDict(dict):
+        for key, value in dict.items():
+            print(key, value, sep=":", end="\n")

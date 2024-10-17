@@ -46,15 +46,10 @@ def main():
 
     predictions = nn_model.predict(test_ds)
 
-    printPrettyDict(predictions)
+    Helpers.printPrettyDict(predictions)
 
 
 if __name__ == "__main__":
     start_time = time.time()
     main()
     print(f"Execution took {time.time() - start_time} seconds")
-
-
-def printPrettyDict(dict):
-    for key, value in dict.items():
-        print(key, value, sep=":", end="\n")
