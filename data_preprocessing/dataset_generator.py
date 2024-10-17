@@ -152,10 +152,10 @@ class TrainDSGenerator(_DatasetGenerator):
 
 
 class TestDSGenerator(_DatasetGenerator):
-    def generate_test_ds(self):
+    def generate_test_ds(self, path):
         _super = super()
 
-        audio_paths, labels = _super.audio_paths_and_labels(Config.dataset_test)
+        audio_paths, labels = _super.audio_paths_and_labels(path)
 
         test_ds = _super.paths_and_labels_to_dataset(audio_paths, labels)
         test_ds = test_ds.batch(len(audio_paths))
