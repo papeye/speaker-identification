@@ -19,7 +19,7 @@ class AudiosCutter:
 
         for audio in os.listdir(audios_dir):
             audio_path = os.path.join(audios_dir, audio)
-            AudioCutter(audio_path, output_dir, subsegment_length).cutAndAddToBaseData()
+            AudioCutter(audio_path, output_dir, subsegment_length).cut()
             print(
                 f"All audios from {audios_dir} cut into segments of length {subsegment_length/ 1000}s and saved to ",
                 output_dir,
@@ -115,7 +115,7 @@ class AudioCutter:
 
         print(f"Saved {len(subsegments)} subsegments to {self.output_path}")
 
-    def cutAndAddToBaseData(self):
+    def cut(self):
         diarization = self.__diarize()
         subsegments = self.__segment(diarization)
         self.__save_subsegments(subsegments)

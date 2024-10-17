@@ -1,8 +1,7 @@
-import numpy as np
 import time
-from collections import Counter
+import os
 
-from data_preprocessing.audio_cutter import AudiosCutter
+from data_preprocessing.audio_cutter import AudiosCutter, AudioCutter
 from config import Config
 from data_preprocessing.data_preparator import NoisePreparator
 from data_preprocessing.dataset_generator import TrainDSGenerator, TestDSGenerator
@@ -40,14 +39,17 @@ def main():
         nn_model.load()
 
     if PREPARE_TEST_DATA:
-        AudiosCutter.cut_all_into_segments(test_data_dir, Config.dataset_test)
+        for file in os.listdir(test_data_dir):
+            path=os.path.join(test_data_dir,file)
+            target=os.path.join(Config.dataset_test,file)
+            AudioCutter(path, target).cut()
 
-    test_ds = TestDSGenerator().generate_test_ds()
-
-    predictions = nn_model.predict(test_ds)
-
-    Helpers.printPrettyDict(predictions)
-
+    for dir in os.listdir(Config.dataset_test):
+        path=os.path.join(Config.dataset_test,dir)
+        test_ds = TestDSGenerator().generate_test_ds(path)
+        predictions = nn_model.predict(test_ds)
+        print(f"Correct speaker: {dir}")
+        Helpers.printPrettyDict(predictions)
 
 if __name__ == "__main__":
     start_time = time.time()
