@@ -1,5 +1,4 @@
 from typing import List
-from pyannote.audio import Pipeline
 from pydub import AudioSegment
 import os
 import shutil
@@ -12,18 +11,15 @@ from data_preprocessing.models.segment import Segment
 from config import Config
 
 
-class AudiosCutter:
+def cut_all_into_segments(audios_dir, output_dir, subsegment_length=1000):
 
-    @staticmethod
-    def cut_all_into_segments(audios_dir, output_dir, subsegment_length=1000):
-
-        for audio in os.listdir(audios_dir):
-            audio_path = os.path.join(audios_dir, audio)
-            AudioCutter(audio_path, output_dir, subsegment_length).cut()
-            print(
-                f"All audios from {audios_dir} cut into segments of length {subsegment_length/ 1000}s and saved to ",
-                output_dir,
-            )
+    for audio in os.listdir(audios_dir):
+        audio_path = os.path.join(audios_dir, audio)
+        AudioCutter(audio_path, output_dir, subsegment_length).cut()
+        print(
+            f"All audios from {audios_dir} cut into segments of length {subsegment_length/ 1000}s and saved to ",
+            output_dir,
+        )
 
 
 class AudioCutter:
