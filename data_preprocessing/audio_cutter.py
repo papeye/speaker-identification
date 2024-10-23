@@ -11,7 +11,7 @@ from data_preprocessing.models.segment import Segment
 from config import Config
 
 
-def cut_all_into_segments(audios_dir, output_dir, subsegment_length=1000):
+def cut_all_into_segments(audios_dir: str, output_dir: str, subsegment_length: int = 1000) -> None:
 
     for audio in os.listdir(audios_dir):
         audio_path = os.path.join(audios_dir, audio)
@@ -31,7 +31,7 @@ class AudioCutter:
         4. Saves subsegments to output_path
     """
 
-    def __init__(self, audio_path, output_path, subsegment_length=1000):
+    def __init__(self, audio_path: str, output_path: str, subsegment_length: int=1000) -> None:
         self.audio_path = audio_path
         self.audio_name = os.path.basename(audio_path)
         self.output_path = os.path.join(output_path, self.audio_name)
@@ -40,7 +40,7 @@ class AudioCutter:
         os.makedirs(self.output_path)
         self.subsegment_length = subsegment_length
 
-    def __diarize(self):
+    def __diarize(self) -> List[Segment]:
         start_time = time.time()
 
         model = Model.from_pretrained(
@@ -72,7 +72,7 @@ class AudioCutter:
 
         return segments
 
-    def __segment(self, segments: List[Segment]):
+    def __segment(self, segments: List[Segment]) -> List[Segment]:
         subsegments = []
 
         for segment in segments:
@@ -93,7 +93,7 @@ class AudioCutter:
 
         return subsegments
 
-    def __save_subsegments(self, subsegments: List[Segment]):
+    def __save_subsegments(self, subsegments: List[Segment]) -> None:
         audio = AudioSegment.from_wav(self.audio_path)
 
         if not os.path.exists(self.output_path):
@@ -111,7 +111,7 @@ class AudioCutter:
 
         print(f"Saved {len(subsegments)} subsegments to {self.output_path}")
 
-    def cut(self):
+    def cut(self) -> None:
         diarization = self.__diarize()
         subsegments = self.__segment(diarization)
         self.__save_subsegments(subsegments)

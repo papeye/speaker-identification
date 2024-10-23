@@ -1,6 +1,7 @@
 import keras
 import os
 import numpy as np
+import tensorflow as tf 
 from collections import Counter
 
 from config import Config
@@ -25,7 +26,7 @@ class NNModel:
             self.model_save_filename, monitor="val_accuracy", save_best_only=True
         )
 
-    def __residual_block(self, x, filters, conv_num=3, activation="relu"):
+    def __residual_block(self, x: tf.Tensor, filters: int, conv_num=3, activation="relu") -> tf.Tensor:
         # Shortcut
         s = keras.layers.Conv1D(filters, 1, padding="same")(x)
         for i in range(conv_num - 1):
@@ -36,7 +37,7 @@ class NNModel:
         x = keras.layers.Activation(activation)(x)
         return keras.layers.MaxPool1D(pool_size=2, strides=2)(x)
 
-    def __build_model(self, input_shape, num_classes):
+    def __build_model(self, input_shape, num_classes: int) -> keras.Model:
         inputs = keras.layers.Input(shape=input_shape, name="input")
 
         x = self.__residual_block(inputs, 16, 2)
@@ -56,7 +57,7 @@ class NNModel:
 
         return keras.models.Model(inputs=inputs, outputs=outputs)
 
-    def train(self, train_ds, valid_ds):
+    def train(self, train_ds: tf.Tensor, valid_ds: tf.Tensor) -> None:
         history = self.model.fit(
             train_ds,
             epochs=Config.epochs,
@@ -66,10 +67,10 @@ class NNModel:
 
         self.model.save_weights("weights.weights.h5")
 
-    def load(self):
+    def load(self) -> None:
         self.model.load_weights("weights.weights.h5")
 
-    def predict(self, test_ds):
+    def predict(self, test_ds: tf.data.Dataset) -> dict[str, float]:
 
         audios, _ = next(iter(test_ds))
 
