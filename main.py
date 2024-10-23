@@ -1,12 +1,15 @@
 import time
 import os
 
-from data_preprocessing.audio_cutter import AudiosCutter, AudioCutter
 from config import Config
-from data_preprocessing.data_preparator import NoisePreparator
-from data_preprocessing.dataset_generator import TrainDSGenerator, TestDSGenerator
+from helpers import move_base_data_to_proper_folders, printPrettyDict
+from data_preprocessing.audio_cutter import AudioCutter, cut_all_into_segments
+from data_preprocessing.noise_preparator import prepareNoise
+from data_preprocessing.dataset_generator import (
+    generate_train_valid_ds,
+    generate_test_ds,
+)
 from nnmodel import NNModel
-from helpers import Helpers
 from training_type import TrainingType
 
 """ Flags for execution control"""
@@ -22,34 +25,34 @@ def main():
     train_data_dir = "example_data/train_data"
     test_data_dir = "example_data/test_data"
 
-    if TRAINING_TYPE.prepareTrainData():
-        Helpers.move_base_data_to_proper_folders()  # TODO Remove this method - it's obsolete if we use already divided data
+    if TRAINING_TYPE.prepareTrainData:
+        move_base_data_to_proper_folders()  # TODO Remove this method - it's obsolete if we use already divided data
 
-        # train data preparation
-        AudiosCutter.cut_all_into_segments(train_data_dir, Config.dataset_train_audio)
+        cut_all_into_segments(train_data_dir, Config.dataset_train_audio)
 
-        noises = NoisePreparator().prepare() if ADD_NOISE_TO_TRAINING_DATA else None
+        noises = prepareNoise() if ADD_NOISE_TO_TRAINING_DATA else None
 
     nn_model = NNModel()
 
-    if TRAINING_TYPE.train():  # if we prepare data, we need to train model
-        train_ds, valid_ds = TrainDSGenerator().generate_train_valid_ds(noises)
+    if TRAINING_TYPE.train:
+        train_ds, valid_ds = generate_train_valid_ds(noises)
         nn_model.train(train_ds, valid_ds)
     else:
         nn_model.load()
 
     if PREPARE_TEST_DATA:
         for file in os.listdir(test_data_dir):
-            path=os.path.join(test_data_dir,file)
-            target=os.path.join(Config.dataset_test,file)
+            path = os.path.join(test_data_dir, file)
+            target = os.path.join(Config.dataset_test, file)
             AudioCutter(path, target).cut()
 
     for dir in os.listdir(Config.dataset_test):
-        path=os.path.join(Config.dataset_test,dir)
-        test_ds = TestDSGenerator().generate_test_ds(path)
+        path = os.path.join(Config.dataset_test, dir)
+        test_ds = generate_test_ds(path)
         predictions = nn_model.predict(test_ds)
         print(f"Correct speaker: {dir}")
-        Helpers.printPrettyDict(predictions)
+        printPrettyDict(predictions)
+
 
 if __name__ == "__main__":
     start_time = time.time()
