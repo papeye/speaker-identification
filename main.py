@@ -13,8 +13,8 @@ from nnmodel import NNModel
 from training_type import TrainingType
 
 """ Flags for execution control"""
-TRAINING_TYPE = TrainingType.PREPARE_DATA_AND_TRAIN
-# TRAINING_TYPE = TrainingType.TRAIN_ONLY
+#TRAINING_TYPE = TrainingType.PREPARE_DATA_AND_TRAIN
+TRAINING_TYPE = TrainingType.TRAIN_ONLY
 # TRAINING_TYPE = TrainingType.NO_TRAINING
 
 ADD_NOISE_TO_TRAINING_DATA = False
