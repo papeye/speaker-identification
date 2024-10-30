@@ -13,9 +13,9 @@ from nnmodel import NNModel
 from training_type import TrainingType
 
 """ Flags for execution control"""
-TRAINING_TYPE = TrainingType.PREPARE_DATA_AND_TRAIN
+# TRAINING_TYPE = TrainingType.PREPARE_DATA_AND_TRAIN
 # TRAINING_TYPE = TrainingType.TRAIN_ONLY
-# TRAINING_TYPE = TrainingType.NO_TRAINING
+TRAINING_TYPE = TrainingType.NO_TRAINING
 
 ADD_NOISE_TO_TRAINING_DATA = False
 PREPARE_TEST_DATA = True
@@ -50,10 +50,12 @@ def main():
 
         test_ds = generate_test_ds(path, dir)
 
-        predictions = nn_model.predict(test_ds)
+        predictions, accuracy = nn_model.predict(test_ds)
 
         print(f"Correct speaker: {dir}")
+        print(f"The accuracy is estimated at {accuracy:.2f} % with predictions:")
         printPrettyDict(predictions)
+        # print(predictions)
 
 
 if __name__ == "__main__":

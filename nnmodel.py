@@ -74,14 +74,25 @@ class NNModel:
         audios, _ = next(iter(test_ds))
 
         y_pred = self.model.predict(audios)
-        y_pred = np.argmax(y_pred, axis=-1)
+        y_pred_argmax = np.argmax(y_pred, axis=-1)
 
-        predicted_labels = [self.speaker_labels[i] for i in y_pred]
+        predicted_labels = [self.speaker_labels[i] for i in y_pred_argmax]
         occurrences_per_speaker = dict(Counter(predicted_labels))
+
+        accuracy_measure = 100 * np.max(np.sum(y_pred, axis=0) / len(predicted_labels))
+        print(accuracy_measure)
 
         occurrences_percentage = {
             speaker: (occurrences / len(predicted_labels)) * 100
             for speaker, occurrences in occurrences_per_speaker.items()
         }
 
-        return occurrences_percentage
+        # occurrences_percentage = {
+        #     speaker: {
+        #         "percentage": (occurrences / len(predicted_labels)) * 100,
+        #         "accuracy": accuracy_measure,
+        #     }
+        #     for speaker, occurrences in occurrences_per_speaker.items()
+        # }
+
+        return occurrences_percentage, accuracy_measure
