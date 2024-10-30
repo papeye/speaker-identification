@@ -50,11 +50,14 @@ def main():
 
         test_ds = generate_test_ds(path, dir)
 
-        predictions, accuracy = nn_model.predict(test_ds)
+        predictions, certainty_measure = nn_model.predict(test_ds)
 
         print(f"Correct speaker: {dir}")
-        print(f"The accuracy is estimated at {accuracy:.2f} % with predictions:")
+        print(
+            f"The certainty of the model is estimated at {certainty_measure:.2f} % with predictions:"
+        )
         printPrettyDict(predictions)
+        # print(dir.dtype)
         # print(predictions)
 
 
