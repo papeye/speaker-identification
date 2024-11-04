@@ -11,8 +11,9 @@ from data_preprocessing.dataset_generator import (
 )
 from nnmodel import NNModel
 from training_type import TrainingType
+import numpy as np
 
-""" Flags for execution control"""
+""" Flags for execution controgit l"""
 # TRAINING_TYPE = TrainingType.PREPARE_DATA_AND_TRAIN
 # TRAINING_TYPE = TrainingType.TRAIN_ONLY
 TRAINING_TYPE = TrainingType.NO_TRAINING
@@ -45,20 +46,39 @@ def main():
             path = os.path.join(test_data_dir, file)
             AudioCutter(path, Config.dataset_test).cut()
 
+    correctly_identyfied = 0
+
     for dir in os.listdir(Config.dataset_test):
         path = os.path.join(Config.dataset_test, dir)
 
         test_ds = generate_test_ds(path, dir)
 
-        predictions, certainty_measure = nn_model.predict(test_ds)
+        predicted_speaker, certainty_measure, speaker_labels = nn_model.predict(test_ds)
+        if predicted_speaker == dir:
+            correctly_identyfied = correctly_identyfied + 1
 
-        print(f"Correct speaker: {dir}")
-        print(
-            f"The certainty of the model is estimated at {certainty_measure:.2f} % with predictions:"
-        )
-        printPrettyDict(predictions)
-        # print(dir.dtype)
-        # print(predictions)
+        print(f"\n Correct speaker: {dir}, predicted speaker is {predicted_speaker}")
+
+        max_prediction = np.max(certainty_measure)
+
+        for i in range(len(certainty_measure)):
+            if certainty_measure[i] > 5:
+                if certainty_measure[i] == max_prediction and speaker_labels[i] == dir:
+                    print(
+                        f"\033[1;32;40m {speaker_labels[i]}: {certainty_measure[i]:.2f}% \033[0m"
+                    )
+                elif (
+                    certainty_measure[i] == max_prediction and speaker_labels[i] == dir
+                ):
+                    print(
+                        f"\033[1;31;40m {speaker_labels[i]}: {certainty_measure[i]:.2f} %\033[0m"
+                    )
+                else:
+                    print(f"{speaker_labels[i]}: {certainty_measure[i]:.2f}%")
+
+    print(
+        f"\n Correctly identyfied speakers: {correctly_identyfied} out of {len(os.listdir(Config.dataset_test))}"
+    )
 
 
 if __name__ == "__main__":
