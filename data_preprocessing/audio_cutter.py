@@ -1,6 +1,6 @@
 from typing import List
-from pydub import AudioSegment
 import os
+from pydub import AudioSegment
 import shutil
 import time
 from pyannote.audio import Model

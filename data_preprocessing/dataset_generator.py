@@ -1,5 +1,11 @@
 import os
 import numpy as np
+
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = (
+    "1"  # for This TensorFlow binary is optimized to use available CPU instructions...
+)
+
 import tensorflow as tf
 from pathlib import Path
 from abc import ABC
