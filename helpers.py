@@ -41,7 +41,6 @@ def move_base_data_to_proper_folders():
                 )
 
 
-def printPrettyDict(dict):
-    for key, value in dict.items():
-        print(key, value, sep=":", end="\n")
-    print("\n")
+def remove_dir(dir: str):
+    if os.path.exists(dir):
+        shutil.rmtree(dir)
