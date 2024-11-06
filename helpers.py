@@ -2,7 +2,6 @@ import shutil
 import os
 import librosa
 import soundfile as sf
-
 from config import Config
 
 

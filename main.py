@@ -1,6 +1,5 @@
 import time
 import os
-
 from config import Config
 from helpers import move_base_data_to_proper_folders, printPrettyDict
 from data_preprocessing.audio_cutter import AudioCutter, cut_all_into_segments
@@ -82,10 +81,44 @@ def main():
         print(f"Test data preparation took {time_test} seconds")
     
     print(f"Predictions took {time_predict} seconds")
+    
+    from datetime import datetime
+    #Function for time 
+
+    def get_last_modified_time(directory):
+       # """Returns the last modified time of any file in the directory."""
+        last_modified_time = 0  # Initialize to the earliest possible time
+        last_modified_file = None 
+
+        for root, _, files in os.walk(directory):
+            for fname in files:
+                file_path = os.path.join(root, fname)
+                # Get the last modification time of the file
+                mtime = os.path.getmtime(file_path)
+                # Update last_modified_time if this file is newer
+                if mtime > last_modified_time:
+                    last_modified_time = mtime
+                    last_modified_file = file_path
+
+
+        # Convert the timestamp to a human-readable format
+        if last_modified_time:
+            return (
+                last_modified_file,
+                datetime.fromtimestamp(last_modified_time).strftime('%Y-%m-%d %H:%M:%S')
+        )
+        else:
+            return "No files found."
+
+# Usage example
+    last_modified_default = get_last_modified_time(Config.dataset_root)
+    last_modified_example = get_last_modified_time('example_data')
+    print("Last modification time of any default file:", last_modified_default)
+    print("Last modification time of any example file:", last_modified_example)
+
+
 
 if __name__ == "__main__":
     start_time = time.time()
     main()
     print(f"Execution took {time.time() - start_time} seconds")
-
-
