@@ -3,7 +3,7 @@ import os
 import time
 
 from config import Config
-from helpers import move_base_data_to_proper_folders, printPrettyDict
+from helpers import move_base_data_to_proper_folders, remove_dir
 from data_preprocessing.audio_cutter import AudioCutter, cut_all_into_segments
 from data_preprocessing.noise_preparator import prepareNoise
 from data_preprocessing.dataset_generator import (
@@ -22,7 +22,7 @@ TRAINING_TYPE = TrainingType.PREPARE_DATA_AND_TRAIN
 ADD_NOISE_TO_TRAINING_DATA = False
 PREPARE_TEST_DATA = True
 
-timer=Timer()
+timer = Timer()
 
 def main():
     train_data_dir = "example_data/train_data"
@@ -49,6 +49,9 @@ def main():
 
     if PREPARE_TEST_DATA:
         timer.start_prepare_test()
+
+        remove_dir(Config.dataset_test)
+
         for file in os.listdir(test_data_dir):
             path = os.path.join(test_data_dir, file)
             AudioCutter(path, Config.dataset_test).cut()
@@ -89,7 +92,7 @@ def main():
         f"\n Correctly identified speakers: {correctly_identyfied} out of {len(os.listdir(Config.dataset_test))}"
     )
     print(f"Correct speaker: {dir}")
-    
+
     timer.end_predict()
 
 
