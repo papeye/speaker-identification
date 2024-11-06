@@ -3,6 +3,9 @@ from config import Config
 from pathlib import Path
 
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = (
+    "1"  # for This TensorFlow binary is optimized to use available CPU instructions...
+)
 
 import tensorflow as tf
 
