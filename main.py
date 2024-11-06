@@ -13,10 +13,10 @@ from nnmodel import NNModel
 from training_type import TrainingType
 import numpy as np
 
-""" Flags for execution controgit l"""
-# TRAINING_TYPE = TrainingType.PREPARE_DATA_AND_TRAIN
+""" Flags for execution control"""
+TRAINING_TYPE = TrainingType.PREPARE_DATA_AND_TRAIN
 # TRAINING_TYPE = TrainingType.TRAIN_ONLY
-TRAINING_TYPE = TrainingType.NO_TRAINING
+# TRAINING_TYPE = TrainingType.NO_TRAINING
 
 ADD_NOISE_TO_TRAINING_DATA = False
 PREPARE_TEST_DATA = True
@@ -55,7 +55,7 @@ def main():
 
         predicted_speaker, certainty_measure, speaker_labels = nn_model.predict(test_ds)
         if predicted_speaker == dir:
-            correctly_identyfied = correctly_identyfied + 1
+            correctly_identyfied += 1
 
         print(f"\n Correct speaker: {dir}, predicted speaker is {predicted_speaker}")
 
@@ -68,7 +68,7 @@ def main():
                         f"\033[1;32;40m {speaker_labels[i]}: {certainty_measure[i]:.2f}% \033[0m"
                     )
                 elif (
-                    certainty_measure[i] == max_prediction and speaker_labels[i] == dir
+                    certainty_measure[i] == max_prediction and speaker_labels[i] != dir
                 ):
                     print(
                         f"\033[1;31;40m {speaker_labels[i]}: {certainty_measure[i]:.2f} %\033[0m"
@@ -77,7 +77,7 @@ def main():
                     print(f"{speaker_labels[i]}: {certainty_measure[i]:.2f}%")
 
     print(
-        f"\n Correctly identyfied speakers: {correctly_identyfied} out of {len(os.listdir(Config.dataset_test))}"
+        f"\n Correctly identified speakers: {correctly_identyfied} out of {len(os.listdir(Config.dataset_test))}"
     )
 
 
