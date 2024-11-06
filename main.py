@@ -24,7 +24,6 @@ PREPARE_TEST_DATA = True
 
 timer = Timer()
 
-
 def main():
     train_data_dir = "example_data/train_data"
     test_data_dir = "example_data/test_data"
@@ -50,7 +49,9 @@ def main():
 
     if PREPARE_TEST_DATA:
         timer.start_prepare_test()
+
         remove_dir(Config.dataset_test)
+
         for file in os.listdir(test_data_dir):
             path = os.path.join(test_data_dir, file)
             AudioCutter(path, Config.dataset_test).cut()

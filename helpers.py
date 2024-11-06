@@ -6,7 +6,7 @@ import soundfile as sf
 from config import Config
 
 
-def move_files(source, target):
+def move_files(source: str, target: str) -> None:
     """Copies all files from source to target directory"""
 
     if not os.path.exists(target):
@@ -18,7 +18,7 @@ def move_files(source, target):
         shutil.copy(source_path, destination_path)
 
 
-def move_base_data_to_proper_folders():
+def move_base_data_to_proper_folders() -> None:
     """Divides base data into audio and noise folders"""
 
     for folder in os.listdir(Config.dataset_root):
