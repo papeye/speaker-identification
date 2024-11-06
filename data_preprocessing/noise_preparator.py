@@ -1,6 +1,7 @@
 import os
 from config import Config
 from pathlib import Path
+from typing import Optional, List
 
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = (
@@ -10,7 +11,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = (
 import tensorflow as tf
 
 
-def __prepare_noise():
+def __prepare_noise() -> str:
     """
     We load all noise samples (which should have been resampled to 16000)
     We split those noise samples to chunks of 16000 samples which correspond to 1 second duration each
@@ -36,7 +37,7 @@ def __prepare_noise():
     return noise_paths
 
 
-def __load_noise_sample(path):
+def __load_noise_sample(path: str) -> Optional[List[tf.Tensor]]:
     sample, sampling_rate = tf.audio.decode_wav(
         tf.io.read_file(path), desired_channels=1
     )
@@ -50,7 +51,7 @@ def __load_noise_sample(path):
         return None
 
 
-def __load_noise(noise_paths):
+def __load_noise(noise_paths: List[str]) -> tf.Tensor:
     noises = []
     for path in noise_paths:
         sample = __load_noise_sample(path)
@@ -59,7 +60,7 @@ def __load_noise(noise_paths):
     return tf.stack(noises)
 
 
-def prepareNoise():
+def prepareNoise() -> tf.Tensor:
     noise_paths = __prepare_noise()
 
     noises = __load_noise(noise_paths)

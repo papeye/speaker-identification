@@ -56,7 +56,7 @@ def main():
 
     correctly_identyfied = 0
 
-    timer.start_predict()
+    timer.start_predicting()
     for dir in os.listdir(Config.dataset_test):
         path = os.path.join(Config.dataset_test, dir)
 
@@ -88,13 +88,13 @@ def main():
     print(
         f"\n Correctly identified speakers: {correctly_identyfied} out of {len(os.listdir(Config.dataset_test))}"
     )
-        print(f"Correct speaker: {dir}")
-        printPrettyDict(predictions)
+    print(f"Correct speaker: {dir}")
+    
     timer.end_predict()
 
 
 if __name__ == "__main__":
-    start_time = time.time()
+    timer.start_executing()
     main()
-    print(f"Execution took {time.time() - start_time} seconds")
+    timer.end_execution()
     print(timer)

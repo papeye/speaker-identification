@@ -7,11 +7,11 @@ class TrainingType(Enum):
     NO_TRAINING = 3
 
     @property
-    def prepareTrainData(self):
+    def prepareTrainData(self) -> bool:
         return self == TrainingType.PREPARE_DATA_AND_TRAIN
 
     @property
-    def train(self):
+    def train(self) -> bool:
         return (
             self == TrainingType.PREPARE_DATA_AND_TRAIN
             or self == TrainingType.TRAIN_ONLY

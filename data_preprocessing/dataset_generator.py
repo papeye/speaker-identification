@@ -1,5 +1,7 @@
 import os
 import numpy as np
+from typing import Optional, List, Tuple
+
 
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = (
@@ -16,7 +18,7 @@ from config import Config
 os.environ["KERAS_BACKEND"] = "tensorflow"
 
 
-def __path_to_audio(path):
+def __path_to_audio(path) -> tf.Tensor:
     """Reads and decodes an audio file and ensures it's of the correct length."""
     audio = tf.io.read_file(path)
     audio, _ = tf.audio.decode_wav(audio, 1, Config.sampling_rate)
@@ -27,7 +29,7 @@ def __path_to_audio(path):
     return audio
 
 
-def __paths_and_labels_to_dataset(audio_paths, labels):
+def __paths_and_labels_to_dataset(audio_paths: List[str], labels: List[str]) -> tf.data.Dataset:
     """Constructs a dataset of audios and labels."""
     path_ds = tf.data.Dataset.from_tensor_slices(audio_paths)
     audio_ds = path_ds.map(
@@ -37,7 +39,7 @@ def __paths_and_labels_to_dataset(audio_paths, labels):
     return tf.data.Dataset.zip((audio_ds, label_ds))
 
 
-def __add_noise(audio, noises=None, scale=0.5):
+def __add_noise(audio: tf.Tensor, noises: Optional[tf.Tensor] = None, scale: float = 0.5) -> tf.Tensor:
     if noises is not None:
         # Create a random tensor of the same size as audio ranging from
         # 0 to the number of noise stream samples that we have.
@@ -56,7 +58,7 @@ def __add_noise(audio, noises=None, scale=0.5):
     return audio
 
 
-def __audio_to_fft(audio):
+def __audio_to_fft(audio: tf.Tensor) -> tf.Tensor:
     # Since tf.signal.fft applies FFT on the innermost dimension,
     # we need to squeeze the dimensions and then expand them again
     # after FFT
@@ -72,7 +74,7 @@ def __audio_to_fft(audio):
     return tf.math.abs(fft[:, : (audio.shape[1] // 2), :])
 
 
-def __speaker_sample_paths(dir, label):
+def __speaker_sample_paths(dir: str, label: str) -> Tuple[List[str], List[str]]:
     labels = []
     audio_paths = [
         os.path.join(dir, filepath)
@@ -84,7 +86,7 @@ def __speaker_sample_paths(dir, label):
     return audio_paths, labels
 
 
-def __audio_paths_and_labels(dir):
+def __audio_paths_and_labels(dir: str) -> Tuple[List[str], List[str]]:
     class_names = os.listdir(dir)
     audio_paths = []
     labels = []
@@ -104,7 +106,7 @@ def __audio_paths_and_labels(dir):
     return audio_paths, labels
 
 
-def generate_train_valid_ds(noises):
+def generate_train_valid_ds(noises: Optional[tf.Tensor]) -> Tuple[tf.data.Dataset, tf.data.Dataset]:
 
     audio_paths, labels = __audio_paths_and_labels(Config.dataset_train_audio)
 
@@ -160,7 +162,7 @@ def generate_train_valid_ds(noises):
     return train_ds, valid_ds
 
 
-def generate_test_ds(path, label):
+def generate_test_ds(path: str, label: str) -> tf.data.Dataset:
 
     audio_paths, labels = __speaker_sample_paths(path, label)
 
