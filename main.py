@@ -1,5 +1,6 @@
-import time
+from timer import Timer
 import os
+import time
 
 from config import Config
 from helpers import move_base_data_to_proper_folders, printPrettyDict
@@ -21,33 +22,41 @@ TRAINING_TYPE = TrainingType.PREPARE_DATA_AND_TRAIN
 ADD_NOISE_TO_TRAINING_DATA = False
 PREPARE_TEST_DATA = True
 
+timer=Timer()
 
 def main():
     train_data_dir = "example_data/train_data"
     test_data_dir = "example_data/test_data"
 
     if TRAINING_TYPE.prepareTrainData:
+        timer.start_prepare_train()
         move_base_data_to_proper_folders()  # TODO Remove this method - it's obsolete if we use already divided data
 
         cut_all_into_segments(train_data_dir, Config.dataset_train_audio)
 
         noises = prepareNoise() if ADD_NOISE_TO_TRAINING_DATA else None
+        timer.end_prepare_train()
 
     nn_model = NNModel()
 
     if TRAINING_TYPE.train:
+        timer.start_training()
         train_ds, valid_ds = generate_train_valid_ds(noises)
         nn_model.train(train_ds, valid_ds)
+        timer.end_training()
     else:
         nn_model.load()
 
     if PREPARE_TEST_DATA:
+        timer.start_prepare_test()
         for file in os.listdir(test_data_dir):
             path = os.path.join(test_data_dir, file)
             AudioCutter(path, Config.dataset_test).cut()
+        timer.end_prepare_test()
 
     correctly_identyfied = 0
 
+    timer.start_predict()
     for dir in os.listdir(Config.dataset_test):
         path = os.path.join(Config.dataset_test, dir)
 
@@ -79,9 +88,13 @@ def main():
     print(
         f"\n Correctly identified speakers: {correctly_identyfied} out of {len(os.listdir(Config.dataset_test))}"
     )
+        print(f"Correct speaker: {dir}")
+        printPrettyDict(predictions)
+    timer.end_predict()
 
 
 if __name__ == "__main__":
     start_time = time.time()
     main()
     print(f"Execution took {time.time() - start_time} seconds")
+    print(timer)
