@@ -1,6 +1,6 @@
 from timer import Timer
 import os
-import time
+
 
 from config import Config
 from helpers import move_base_data_to_proper_folders, remove_dir
@@ -11,20 +11,7 @@ from data_preprocessing.dataset_generator import (
     generate_test_ds,
 )
 from nnmodel import NNModel
-from training_type import TrainingType
 import numpy as np
-
-""" Flags for execution control"""
-TRAINING_TYPE = TrainingType.PREPARE_DATA_AND_TRAIN
-# TRAINING_TYPE = TrainingType.TRAIN_ONLY
-# TRAINING_TYPE = TrainingType.NO_TRAINING
-
-ADD_NOISE_TO_TRAINING_DATA = False
-PREPARE_TEST_DATA = True
-
-
-# train_data_dir = "example_data/train_data"
-# test_data_dir = "example_data/test_data"
 
 
 class SpeakerIdentification:
@@ -32,12 +19,14 @@ class SpeakerIdentification:
         self.timer = Timer()
         self.nn_model = NNModel()
 
-    def train(self, train_data_dir, prepareTrainData, trainFlag):
+    def train(
+        self, train_data_dir, prepareTrainData, trainFlag, add_noise_to_training_data
+    ):
         if prepareTrainData:
             self.timer.start_prepare_train()
             move_base_data_to_proper_folders()  # TODO Remove this method - it's obsolete if we use already divided data
             cut_all_into_segments(train_data_dir, Config.dataset_train_audio)
-            self.noises = prepareNoise() if ADD_NOISE_TO_TRAINING_DATA else None
+            self.noises = prepareNoise() if add_noise_to_training_data else None
             self.timer.end_prepare_train()
         if trainFlag:
             self.timer.start_training()
@@ -107,6 +96,3 @@ class SpeakerIdentification:
         self.timer.end_predict()
 
         return None
-
-    # def PrintTimer():
-    #     print(self.timer)
