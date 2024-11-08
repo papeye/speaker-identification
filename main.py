@@ -13,91 +13,105 @@ from data_preprocessing.dataset_generator import (
 from nnmodel import NNModel
 from training_type import TrainingType
 import numpy as np
+from identyfier import SpeakerIdentification
 
 """ Flags for execution control"""
-TRAINING_TYPE = TrainingType.PREPARE_DATA_AND_TRAIN
+# TRAINING_TYPE = TrainingType.PREPARE_DATA_AND_TRAIN
 # TRAINING_TYPE = TrainingType.TRAIN_ONLY
-# TRAINING_TYPE = TrainingType.NO_TRAINING
+TRAINING_TYPE = TrainingType.NO_TRAINING
 
 ADD_NOISE_TO_TRAINING_DATA = False
 PREPARE_TEST_DATA = True
 
 timer = Timer()
 
+
 def main():
-    train_data_dir = "example_data/train_data"
-    test_data_dir = "example_data/test_data"
+    train_example_dir = "example_data/train_data"
+    test_example_dir = "example_data/test_data"
 
-    if TRAINING_TYPE.prepareTrainData:
-        timer.start_prepare_train()
-        move_base_data_to_proper_folders()  # TODO Remove this method - it's obsolete if we use already divided data
+    user1 = SpeakerIdentification()
 
-        cut_all_into_segments(train_data_dir, Config.dataset_train_audio)
+    user1.timer.start_executing()
 
-        noises = prepareNoise() if ADD_NOISE_TO_TRAINING_DATA else None
-        timer.end_prepare_train()
+    user1.train(train_example_dir, TRAINING_TYPE.prepareTrainData, TRAINING_TYPE.train)
 
-    nn_model = NNModel()
+    user1.predict(test_example_dir, PREPARE_TEST_DATA)
 
-    if TRAINING_TYPE.train:
-        timer.start_training()
-        train_ds, valid_ds = generate_train_valid_ds(noises)
-        nn_model.train(train_ds, valid_ds)
-        timer.end_training()
-    else:
-        nn_model.load()
+    user1.timer.end_execution()
+    print(user1.timer)
 
-    if PREPARE_TEST_DATA:
-        timer.start_prepare_test()
 
-        remove_dir(Config.dataset_test)
+#     if TRAINING_TYPE.prepareTrainData:
+#         timer.start_prepare_train()
+#         move_base_data_to_proper_folders()  # TODO Remove this method - it's obsolete if we use already divided data
 
-        for file in os.listdir(test_data_dir):
-            path = os.path.join(test_data_dir, file)
-            AudioCutter(path, Config.dataset_test).cut()
-        timer.end_prepare_test()
+#         cut_all_into_segments(train_data_dir, Config.dataset_train_audio)
 
-    correctly_identyfied = 0
+#         noises = prepareNoise() if ADD_NOISE_TO_TRAINING_DATA else None
+#         timer.end_prepare_train()
 
-    timer.start_predicting()
-    for dir in os.listdir(Config.dataset_test):
-        path = os.path.join(Config.dataset_test, dir)
+#     nn_model = NNModel()
 
-        test_ds = generate_test_ds(path, dir)
+#     if TRAINING_TYPE.train:
+#         timer.start_training()
+#         train_ds, valid_ds = generate_train_valid_ds(noises)
+#         nn_model.train(train_ds, valid_ds)
+#         timer.end_training()
+#     else:
+#         nn_model.load()
 
-        predicted_speaker, certainty_measure, speaker_labels = nn_model.predict(test_ds)
-        if predicted_speaker == dir:
-            correctly_identyfied += 1
+#     if PREPARE_TEST_DATA:
+#         timer.start_prepare_test()
 
-        print(f"\n Correct speaker: {dir}, predicted speaker is {predicted_speaker}")
+#         remove_dir(Config.dataset_test)
 
-        max_prediction = np.max(certainty_measure)
+#         for file in os.listdir(test_data_dir):
+#             path = os.path.join(test_data_dir, file)
+#             AudioCutter(path, Config.dataset_test).cut()
+#         timer.end_prepare_test()
 
-        for i in range(len(certainty_measure)):
-            if certainty_measure[i] > 5:
-                if certainty_measure[i] == max_prediction and speaker_labels[i] == dir:
-                    print(
-                        f"\033[1;32;40m {speaker_labels[i]}: {certainty_measure[i]:.2f}% \033[0m"
-                    )
-                elif (
-                    certainty_measure[i] == max_prediction and speaker_labels[i] != dir
-                ):
-                    print(
-                        f"\033[1;31;40m {speaker_labels[i]}: {certainty_measure[i]:.2f} %\033[0m"
-                    )
-                else:
-                    print(f"{speaker_labels[i]}: {certainty_measure[i]:.2f}%")
+#     correctly_identyfied = 0
 
-    print(
-        f"\n Correctly identified speakers: {correctly_identyfied} out of {len(os.listdir(Config.dataset_test))}"
-    )
-    print(f"Correct speaker: {dir}")
+#     timer.start_predicting()
+#     for dir in os.listdir(Config.dataset_test):
+#         path = os.path.join(Config.dataset_test, dir)
 
-    timer.end_predict()
+#         test_ds = generate_test_ds(path, dir)
+
+#         predicted_speaker, certainty_measure, speaker_labels = nn_model.predict(test_ds)
+#         if predicted_speaker == dir:
+#             correctly_identyfied += 1
+
+#         print(f"\n Correct speaker: {dir}, predicted speaker is {predicted_speaker}")
+
+#         max_prediction = np.max(certainty_measure)
+
+#         for i in range(len(certainty_measure)):
+#             if certainty_measure[i] > 5:
+#                 if certainty_measure[i] == max_prediction and speaker_labels[i] == dir:
+#                     print(
+#                         f"\033[1;32;40m {speaker_labels[i]}: {certainty_measure[i]:.2f}% \033[0m"
+#                     )
+#                 elif (
+#                     certainty_measure[i] == max_prediction and speaker_labels[i] != dir
+#                 ):
+#                     print(
+#                         f"\033[1;31;40m {speaker_labels[i]}: {certainty_measure[i]:.2f} %\033[0m"
+#                     )
+#                 else:
+#                     print(f"{speaker_labels[i]}: {certainty_measure[i]:.2f}%")
+
+#     print(
+#         f"\n Correctly identified speakers: {correctly_identyfied} out of {len(os.listdir(Config.dataset_test))}"
+#     )
+#     print(f"Correct speaker: {dir}")
+
+#     timer.end_predict()
 
 
 if __name__ == "__main__":
-    timer.start_executing()
+    # timer.start_executing()
     main()
-    timer.end_execution()
-    print(timer)
+    # timer.end_execution()
+    # print(user1.timer)
