@@ -5,7 +5,6 @@ import time
 class Timer:
 
     def __init__(self) -> None:
-    def __init__(self):
         self.training_time = None
         self.prepare_train_time = None
         self.prepare_test_time = None
