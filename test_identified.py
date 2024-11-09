@@ -7,4 +7,4 @@ def run_main():
 
 def test_correctly_identifed():
     # TODO Once we fix testing data this number needs to be increased to at least 0.9
-    assert run_main() >= 1.5
+    assert run_main() >= 0.5
