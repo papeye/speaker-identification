@@ -4,12 +4,12 @@ from helpers import display_predictions
 
 
 """ Flags for execution control"""
-TRAINING_TYPE = TrainingType.PREPARE_DATA_AND_TRAIN
+# TRAINING_TYPE = TrainingType.PREPARE_DATA_AND_TRAIN
 # TRAINING_TYPE = TrainingType.TRAIN_ONLY
-# TRAINING_TYPE = TrainingType.NO_TRAINING
+TRAINING_TYPE = TrainingType.NO_TRAINING
 
 ADD_NOISE_TO_TRAINING_DATA = False
-PREPARE_TEST_DATA = True
+PREPARE_TEST_DATA = False
 
 
 def main():
