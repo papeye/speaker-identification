@@ -1,6 +1,5 @@
 from timer import Timer
 import os
-import time
 
 from config import Config
 from helpers import move_base_data_to_proper_folders, remove_dir
@@ -15,12 +14,12 @@ from training_type import TrainingType
 import numpy as np
 
 """ Flags for execution control"""
-TRAINING_TYPE = TrainingType.PREPARE_DATA_AND_TRAIN
+# TRAINING_TYPE = TrainingType.PREPARE_DATA_AND_TRAIN
 # TRAINING_TYPE = TrainingType.TRAIN_ONLY
-# TRAINING_TYPE = TrainingType.NO_TRAINING
+TRAINING_TYPE = TrainingType.NO_TRAINING
 
 ADD_NOISE_TO_TRAINING_DATA = False
-PREPARE_TEST_DATA = True
+PREPARE_TEST_DATA = False
 
 timer = Timer()
 
@@ -88,12 +87,16 @@ def main():
                 else:
                     print(f"{speaker_labels[i]}: {certainty_measure[i]:.2f}%")
 
+    total_speakers = len(os.listdir(Config.dataset_test))
+
     print(
-        f"\n Correctly identified speakers: {correctly_identyfied} out of {len(os.listdir(Config.dataset_test))}"
+        f"\n Correctly identified speakers: {correctly_identyfied} out of {total_speakers}"
     )
     print(f"Correct speaker: {dir}")
 
     timer.end_predict()
+    
+    return correctly_identyfied, total_speakers
 
 
 if __name__ == "__main__":
