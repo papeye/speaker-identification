@@ -12,23 +12,28 @@ from data_preprocessing.dataset_generator import (
 )
 from nnmodel import NNModel
 import numpy as np
+from training_type import TrainingType
 
 
-class SpeakerIdentification:
+class SpeakerIdentifier:
     def __init__(self):
         self.timer = Timer()
+        self.timer.start_executing()
         self.nn_model = NNModel()
 
     def train(
-        self, train_data_dir, prepareTrainData, trainFlag, add_noise_to_training_data
-    ):
-        if prepareTrainData:
+        self,
+        train_data_dir: dir,
+        training_type: TrainingType,
+        add_noise_to_training_data: bool,
+    ) -> None:
+        if training_type.prepareTrainData:
             self.timer.start_prepare_train()
             move_base_data_to_proper_folders()  # TODO Remove this method - it's obsolete if we use already divided data
             cut_all_into_segments(train_data_dir, Config.dataset_train_audio)
             self.noises = prepareNoise() if add_noise_to_training_data else None
             self.timer.end_prepare_train()
-        if trainFlag:
+        if training_type.train:
             self.timer.start_training()
             train_ds, valid_ds = generate_train_valid_ds(self.noises)
             self.nn_model.train(train_ds, valid_ds)
@@ -36,9 +41,7 @@ class SpeakerIdentification:
         else:
             self.nn_model.load()
 
-        return None
-
-    def predict(self, test_data_dir, prepareTestData):
+    def predict(self, test_data_dir: str, prepareTestData: bool) -> None:
         if prepareTestData:
             self.timer.start_prepare_test()
 
@@ -95,4 +98,4 @@ class SpeakerIdentification:
 
         self.timer.end_predict()
 
-        return None
+        self.timer.end_execution()
