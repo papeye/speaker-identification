@@ -19,7 +19,6 @@ class SpeakerIdentifier:
     def __init__(self):
         self.timer = Timer()
         self.timer.start_executing()
-        self.nn_model = NNModel()
 
     def train(
         self,
@@ -32,6 +31,7 @@ class SpeakerIdentifier:
             move_base_data_to_proper_folders()  # TODO Remove this method - it's obsolete if we use already divided data
             cut_all_into_segments(train_data_dir, Config.dataset_train_audio)
             self.noises = prepareNoise() if add_noise_to_training_data else None
+            self.nn_model = NNModel()
             self.timer.end_prepare_train()
         if training_type.train:
             self.timer.start_training()
@@ -39,6 +39,7 @@ class SpeakerIdentifier:
             self.nn_model.train(train_ds, valid_ds)
             self.timer.end_training()
         else:
+            self.nn_model = NNModel()
             self.nn_model.load()
 
     def predict(self, test_data_dir: str, prepareTestData: bool) -> None:
