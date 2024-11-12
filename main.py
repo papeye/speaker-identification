@@ -22,7 +22,11 @@ def main():
         ADD_NOISE_TO_TRAINING_DATA,
     )
 
-    user1.predict(test_example_dir, PREPARE_TEST_DATA)
+    predictions, correctly_identified = user1.predict(
+        test_example_dir, PREPARE_TEST_DATA
+    )
+
+    user1.display_predictions(predictions, correctly_identified)
 
     print(user1.timer)
 
