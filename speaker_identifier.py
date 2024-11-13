@@ -22,7 +22,7 @@ class SpeakerIdentifier:
 
     def train(
         self,
-        train_data_dir: dir,
+        train_data_dir: str,
         training_type: TrainingType,
         add_noise_to_training_data: bool,
     ) -> None:
@@ -81,40 +81,3 @@ class SpeakerIdentifier:
         self.timer.end_execution()
 
         return predictions, correctly_identified
-
-    def display_predictions(self, predictions, correctly_identified):
-        total_speakers = len(os.listdir(Config.dataset_test))
-
-        for detail in predictions:
-            correct_speaker = detail["correct_speaker"]
-            predicted_speaker = detail["predicted_speaker"]
-            certainty_measure = detail["certainty_measure"]
-            speaker_labels = detail["speaker_labels"]
-            max_prediction = np.max(certainty_measure)
-
-            print(
-                f"\nCorrect speaker: {correct_speaker}, predicted speaker is {predicted_speaker}"
-            )
-
-            for i in range(len(certainty_measure)):
-                if certainty_measure[i] > 5:
-                    if (
-                        certainty_measure[i] == max_prediction
-                        and speaker_labels[i] == correct_speaker
-                    ):
-                        print(
-                            f"\033[1;32;40m {speaker_labels[i]}: {certainty_measure[i]:.2f}% \033[0m"
-                        )
-                    elif (
-                        certainty_measure[i] == max_prediction
-                        and speaker_labels[i] != correct_speaker
-                    ):
-                        print(
-                            f"\033[1;31;40m {speaker_labels[i]}: {certainty_measure[i]:.2f}% \033[0m"
-                        )
-                    else:
-                        print(f"{speaker_labels[i]}: {certainty_measure[i]:.2f}%")
-
-        print(
-            f"\nCorrectly identified speakers: {correctly_identified} out of {total_speakers}"
-        )

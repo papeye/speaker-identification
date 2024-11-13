@@ -1,5 +1,7 @@
 from training_type import TrainingType
 from speaker_identifier import SpeakerIdentifier
+from helpers import display_predictions
+
 
 """ Flags for execution control"""
 TRAINING_TYPE = TrainingType.PREPARE_DATA_AND_TRAIN
@@ -26,7 +28,7 @@ def main():
         test_example_dir, PREPARE_TEST_DATA
     )
 
-    user1.display_predictions(predictions, correctly_identified)
+    display_predictions(predictions, correctly_identified)
 
     print(user1.timer)
 
