@@ -57,6 +57,7 @@ class SpeakerIdentifier:
             for file in os.listdir(test_data_dir):
                 path = os.path.join(test_data_dir, file)
                 AudioCutter(path, Config.dataset_test).cut()
+
             self.timer.end_prepare_test()
 
         correctly_identified = 0
