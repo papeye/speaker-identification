@@ -32,6 +32,8 @@ def main():
 
     print(user1.timer)
 
+    return correctly_identified
+
 
 if __name__ == "__main__":
     main()

@@ -24,4 +24,4 @@ class Config:
     sample_width = 2  # 16-bit audio uses 2 bytes per sample (since 16 bits = 2 bytes)
     scale = 0.5
     batch_size = 128
-    epochs = 1
+    epochs = 3

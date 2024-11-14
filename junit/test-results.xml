@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="7.929" timestamp="2024-11-09T13:00:45.930306+01:00" hostname="Pawes-Mac-mini.lan"><testcase classname="test_identified" name="test_correctly_identifed" time="2.716" /></testsuite></testsuites>
