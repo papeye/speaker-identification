@@ -26,17 +26,24 @@ class SpeakerIdentifier:
         training_type: TrainingType,
         add_noise_to_training_data: bool,
     ) -> None:
-        self.nn_model = NNModel()
+
         if training_type.prepareTrainData:
             self.timer.start_prepare_train()
+
             move_base_data_to_proper_folders()  # TODO Remove this method - it's obsolete if we use already divided data
             cut_all_into_segments(train_data_dir, Config.dataset_train_audio)
             self.noises = prepareNoise() if add_noise_to_training_data else None
+
             self.timer.end_prepare_train()
+
+        self.nn_model = NNModel()
+
         if training_type.train:
             self.timer.start_training()
+
             train_ds, valid_ds = generate_train_valid_ds(self.noises)
             self.nn_model.train(train_ds, valid_ds)
+
             self.timer.end_training()
         else:
             self.nn_model.load()
