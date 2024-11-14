@@ -84,7 +84,9 @@ class SpeakerIdentifier:
                 }
             )
 
+        total_speakers = len(os.listdir(Config.dataset_test))
+
         self.timer.end_predict()
         self.timer.end_execution()
 
-        return predictions, correctly_identified
+        return predictions, correctly_identified / total_speakers

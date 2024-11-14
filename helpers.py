@@ -46,7 +46,6 @@ def remove_dir(dir: str):
 
 
 def display_predictions(predictions, correctly_identified):
-    total_speakers = len(os.listdir(Config.dataset_test))
 
     for detail in predictions:
         correct_speaker = detail["correct_speaker"]
@@ -78,6 +77,4 @@ def display_predictions(predictions, correctly_identified):
                 else:
                     print(f"{speaker_labels[i]}: {certainty_measure[i]:.2f}%")
 
-    print(
-        f"\nCorrectly identified speakers: {correctly_identified} out of {total_speakers}"
-    )
+    print(f"\nCorrectly identified speakers: {correctly_identified}")

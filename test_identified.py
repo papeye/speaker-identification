@@ -1,8 +1,8 @@
 from main import main
 
+
 def run_main():
-    correctly, total = main()
-    return correctly / total
+    return main()
 
 
 def test_correctly_identifed():
