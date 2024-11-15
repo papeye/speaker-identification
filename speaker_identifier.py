@@ -25,7 +25,6 @@ class SpeakerIdentifier:
         training_type: TrainingType,
         add_noise_to_training_data: bool,
     ) -> None:
-        self.nn_model = NNModel()
         self.noises = prepareNoise() if add_noise_to_training_data else None
         if training_type.prepareTrainData:
             self.timer.start_prepare_train()
