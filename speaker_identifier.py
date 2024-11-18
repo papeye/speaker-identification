@@ -40,7 +40,9 @@ class SpeakerIdentifier:
         if training_type.train:
             self.timer.start_training()
 
-            train_ds, valid_ds = generate_train_valid_ds(self.noises)
+            train_ds, valid_ds = generate_t
+
+            rain_valid_ds(self.noises)
             self.nn_model.train(train_ds, valid_ds)
 
             self.timer.end_training()
