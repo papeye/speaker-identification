@@ -25,7 +25,7 @@ class NNModel:
         )
         self.model_save_filename = "model.keras"
         self.earlystopping_cb = keras.callbacks.EarlyStopping(
-            patience=10, restore_best_weights=True
+            patience=2, restore_best_weights=True
         )
         self.mdlcheckpoint_cb = keras.callbacks.ModelCheckpoint(
             self.model_save_filename, monitor="val_accuracy", save_best_only=True
