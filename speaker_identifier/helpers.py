@@ -2,7 +2,7 @@ import shutil
 import os
 import numpy as np
 
-from config import Config
+from .config import Config
 
 
 def move_files(source: str, target: str) -> None:

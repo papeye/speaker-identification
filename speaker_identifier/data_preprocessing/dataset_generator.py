@@ -1,21 +1,16 @@
 import os
 import numpy as np
 from typing import Optional, List, Tuple
-
+import tensorflow as tf
+from pathlib import Path
 
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = (
     "1"  # for This TensorFlow binary is optimized to use available CPU instructions...
 )
-
-import tensorflow as tf
-from pathlib import Path
-from abc import ABC
-
-from config import Config
-
-
 os.environ["KERAS_BACKEND"] = "tensorflow"
+
+from ..config import Config
 
 
 def __path_to_audio(path) -> tf.Tensor:
@@ -29,7 +24,9 @@ def __path_to_audio(path) -> tf.Tensor:
     return audio
 
 
-def __paths_and_labels_to_dataset(audio_paths: List[str], labels: List[str]) -> tf.data.Dataset:
+def __paths_and_labels_to_dataset(
+    audio_paths: List[str], labels: List[str]
+) -> tf.data.Dataset:
     """Constructs a dataset of audios and labels."""
     path_ds = tf.data.Dataset.from_tensor_slices(audio_paths)
     audio_ds = path_ds.map(
@@ -39,7 +36,9 @@ def __paths_and_labels_to_dataset(audio_paths: List[str], labels: List[str]) -> 
     return tf.data.Dataset.zip((audio_ds, label_ds))
 
 
-def __add_noise(audio: tf.Tensor, noises: Optional[tf.Tensor] = None, scale: float = 0.5) -> tf.Tensor:
+def __add_noise(
+    audio: tf.Tensor, noises: Optional[tf.Tensor] = None, scale: float = 0.5
+) -> tf.Tensor:
     if noises is not None:
         # Create a random tensor of the same size as audio ranging from
         # 0 to the number of noise stream samples that we have.
@@ -106,7 +105,9 @@ def __audio_paths_and_labels(dir: str) -> Tuple[List[str], List[str]]:
     return audio_paths, labels
 
 
-def generate_train_valid_ds(noises: Optional[tf.Tensor]) -> Tuple[tf.data.Dataset, tf.data.Dataset]:
+def generate_train_valid_ds(
+    noises: Optional[tf.Tensor],
+) -> Tuple[tf.data.Dataset, tf.data.Dataset]:
 
     audio_paths, labels = __audio_paths_and_labels(Config.dataset_train_audio)
 

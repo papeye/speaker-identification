@@ -1,10 +1,13 @@
 import os
 
 
+package_dir = os.path.dirname(__file__)
+
+
 class Config:
     hugging_face_token = "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"
 
-    dataset_root = "16000_pcm_speeches"
+    dataset_root = os.path.join(package_dir, "16000_pcm_speeches")
 
     dataset_train = "train_ds_dir"
     dataset_test = "test_ds_dir"
@@ -17,6 +20,9 @@ class Config:
 
     dataset_train_audio = os.path.join(dataset_train, audio_subfolder)
     dataset_train_noise = os.path.join(dataset_train, noise_subfolder)
+
+    model_file = os.path.join(package_dir, "model.keras")
+    weights_file = os.path.join(package_dir, "weights.weights.h5")
 
     valid_split = 0.1
     shuffle_seed = 43

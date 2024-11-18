@@ -1,14 +1,15 @@
 import os
-from config import Config
 from pathlib import Path
 from typing import Optional, List
+import tensorflow as tf
 
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = (
     "1"  # for This TensorFlow binary is optimized to use available CPU instructions...
 )
 
-import tensorflow as tf
+
+from ..config import Config
 
 
 def __prepare_noise() -> str:

@@ -7,8 +7,8 @@ from pyannote.audio import Model
 from pyannote.audio.pipelines import VoiceActivityDetection
 
 
-from data_preprocessing.models.segment import Segment
-from config import Config
+from .models.segment import Segment
+from ..config import Config
 
 
 def cut_all_into_segments(
