@@ -23,6 +23,7 @@ class NNModel:
             loss="sparse_categorical_crossentropy",
             metrics=["accuracy"],
         )
+        self.load()
         self.model_save_filename = "model.keras"
         self.earlystopping_cb = keras.callbacks.EarlyStopping(
             patience=2, restore_best_weights=True
@@ -65,7 +66,6 @@ class NNModel:
         return keras.models.Model(inputs=inputs, outputs=outputs)
 
     def train(self, train_ds: tf.Tensor, valid_ds: tf.Tensor) -> None:
-        self.load()
         history = self.model.fit(
             train_ds,
             epochs=Config.epochs,

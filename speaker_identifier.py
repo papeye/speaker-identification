@@ -43,8 +43,6 @@ class SpeakerIdentifier:
             self.nn_model.train(train_ds, valid_ds)
 
             self.timer.end_training()
-        else:
-            self.nn_model.load()
 
     def predict(self, test_data_dir: str, prepareTestData: bool) -> None:
         if prepareTestData:
