@@ -11,7 +11,6 @@ from data_preprocessing.dataset_generator import (
     generate_test_ds,
 )
 from nnmodel import NNModel
-import numpy as np
 from training_type import TrainingType
 
 

@@ -1,14 +1,13 @@
 import os
+import keras
+import numpy as np
+import tensorflow as tf
 
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = (
     "1"  # for This TensorFlow binary is optimized to use available CPU instructions...
 )
 
-import keras
-import numpy as np
-from collections import Counter
-import tensorflow as tf 
 
 from config import Config
 
@@ -32,7 +31,9 @@ class NNModel:
             self.model_save_filename, monitor="val_accuracy", save_best_only=True
         )
 
-    def __residual_block(self, x: tf.Tensor, filters: int, conv_num=3, activation="relu") -> tf.Tensor:
+    def __residual_block(
+        self, x: tf.Tensor, filters: int, conv_num=3, activation="relu"
+    ) -> tf.Tensor:
         # Shortcut
         s = keras.layers.Conv1D(filters, 1, padding="same")(x)
         for i in range(conv_num - 1):
