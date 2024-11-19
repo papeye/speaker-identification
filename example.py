@@ -1,6 +1,4 @@
-from speaker_identifier.training_type import TrainingType
-from speaker_identifier.speaker_identifier import SpeakerIdentifier
-from speaker_identifier.helpers import display_predictions
+from speaker_identifier import SpeakerIdentifier, TrainingType, display_predictions
 
 
 """ Flags for execution control"""
