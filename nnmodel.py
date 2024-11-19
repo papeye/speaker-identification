@@ -7,10 +7,9 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = (
 
 import keras
 import numpy as np
-from collections import Counter
-import tensorflow as tf 
-
+import tensorflow as tf
 from config import Config
+import h5py
 
 
 class NNModel:
@@ -24,15 +23,18 @@ class NNModel:
             loss="sparse_categorical_crossentropy",
             metrics=["accuracy"],
         )
+        self.load()
         self.model_save_filename = "model.keras"
         self.earlystopping_cb = keras.callbacks.EarlyStopping(
-            patience=10, restore_best_weights=True
+            patience=2, restore_best_weights=True
         )
         self.mdlcheckpoint_cb = keras.callbacks.ModelCheckpoint(
             self.model_save_filename, monitor="val_accuracy", save_best_only=True
         )
 
-    def __residual_block(self, x: tf.Tensor, filters: int, conv_num=3, activation="relu") -> tf.Tensor:
+    def __residual_block(
+        self, x: tf.Tensor, filters: int, conv_num=3, activation="relu"
+    ) -> tf.Tensor:
         # Shortcut
         s = keras.layers.Conv1D(filters, 1, padding="same")(x)
         for i in range(conv_num - 1):
@@ -74,21 +76,35 @@ class NNModel:
         self.model.save_weights("weights.weights.h5")
 
     def load(self) -> None:
-        self.model.load_weights("weights.weights.h5")
+        output_dim = get_output_dim_from_weights("weights.weights.h5", "dense_2")
+        if output_dim == len(os.listdir(Config.dataset_train_audio)):
+            print("The number of speakers didn't change so previous weights are loaded")
+            self.model.load_weights("weights.weights.h5")
+        else:
+            print("No model was loaded")
 
     def predict(self, test_ds: tf.data.Dataset) -> dict[str, float]:
-
         audios, _ = next(iter(test_ds))
-
-        # y_pred = self.model.predict(audios)
         y_pred = self.model(audios)
-
-        y_pred_argmax = np.argmax(y_pred, axis=-1)
-
-        predicted_labels = [self.speaker_labels[i] for i in y_pred_argmax]
-
         certainty_measure = 100 * np.mean(y_pred, axis=0)
         predicted_speaker_index = np.argmax(certainty_measure, axis=-1)
         predicted_speaker = self.speaker_labels[predicted_speaker_index]
 
         return predicted_speaker, certainty_measure, self.speaker_labels
+
+
+def get_output_dim_from_weights(weights_file, output_layer_name):
+    with h5py.File(weights_file, "r") as f:
+        layers_group = f["layers"]
+        if output_layer_name in layers_group:
+            layer = layers_group[output_layer_name]
+            if "vars" in layer:
+                vars_group = layer["vars"]
+                # Identify weights dataset (the one with 2D shape)
+                for var_name in vars_group.keys():
+                    var_data = vars_group[var_name]
+                    if len(var_data.shape) == 2:
+                        weights = var_data
+                        output_dim = weights.shape[1]
+                        return output_dim
+    return None
