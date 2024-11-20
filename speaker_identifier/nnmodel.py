@@ -99,7 +99,7 @@ class NNModel:
             callbacks=[self.earlystopping_cb, self.mdlcheckpoint_cb],
         )
 
-        print(f"Training finished on model: \n {self.model.summary}")
+        print(f"Training finished on model: \n {self.model.summary()}")
 
     def predict(self, test_ds: tf.data.Dataset) -> dict[str, float]:
         audios, _ = next(iter(test_ds))
