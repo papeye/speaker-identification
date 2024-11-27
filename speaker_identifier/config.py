@@ -1,6 +1,5 @@
 import os
 
-
 package_dir = os.path.dirname(__file__)
 
 
@@ -21,9 +20,6 @@ class Config:
     dataset_train_audio = os.path.join(dataset_train, audio_subfolder)
     dataset_train_noise = os.path.join(dataset_train, noise_subfolder)
 
-    model_file = os.path.join(package_dir, "model.keras")
-    weights_file = os.path.join(package_dir, "weights.weights.h5")
-
     valid_split = 0.1
     shuffle_seed = 43
     sampling_rate = 16000
@@ -31,3 +27,9 @@ class Config:
     scale = 0.5
     batch_size = 128
     epochs = 3
+
+
+class Utils:
+    @staticmethod
+    def model_file_path(model_filename: str) -> str:
+        return os.path.join(package_dir, model_filename)

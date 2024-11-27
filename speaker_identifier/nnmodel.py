@@ -2,14 +2,14 @@ import os
 import keras
 import numpy as np
 import tensorflow as tf
-import h5py
+import datetime
 
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = (
     "1"  # for This TensorFlow binary is optimized to use available CPU instructions...
 )
 
-from .config import Config
+from .config import Config, Utils
 
 
 class NNModel:
@@ -21,23 +21,28 @@ class NNModel:
             metrics=["accuracy"],
         )
 
-    def __init__(self):
+    def __init__(self, model_filename: str = "model-<timestamp>.keras"):
+        _model_filename = (
+            model_filename
+            if model_filename != "model-<timestamp>.keras"
+            else f"model-{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}.keras"
+        )
+        self.model_filepath = Utils.model_file_path(_model_filename)
+
         self.speaker_labels = os.listdir(Config.dataset_train_audio)
         self.num_classes = len(self.speaker_labels)
 
         try:
-            self.model = keras.models.load_model(Config.model_file)
-        except FileNotFoundError:
-            print("Model not found, creating new model")
-            self.model = self.__build_model(
-                (Config.sampling_rate // 2, 1), len(self.speaker_labels)
-            )
+            self.model = keras.models.load_model(self.model_filepath)
+        except ValueError as e:
+            print("Model file not found, creating new model")
+            self.__build_model((Config.sampling_rate // 2, 1))
 
         self.earlystopping_cb = keras.callbacks.EarlyStopping(
             patience=2, restore_best_weights=True
         )
         self.mdlcheckpoint_cb = keras.callbacks.ModelCheckpoint(
-            Config.model_file, monitor="val_accuracy", save_best_only=True
+            self.model_filepath, monitor="val_accuracy", save_best_only=True
         )
 
     def __residual_block(
