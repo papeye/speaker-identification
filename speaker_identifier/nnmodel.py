@@ -21,11 +21,11 @@ class NNModel:
             metrics=["accuracy"],
         )
 
-    def __init__(self, model_filename: str = "model-<timestamp>.keras"):
+    def __init__(self, model_name: str = "<timestamp>"):
         _model_filename = (
-            model_filename
-            if model_filename != "model-<timestamp>.keras"
-            else f"model-{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}.keras"
+            f"{model_name}.keras"
+            if model_name != "<timestamp>"
+            else f"{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}.keras"
         )
         self.model_filepath = Utils.model_file_path(_model_filename)
 

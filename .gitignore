@@ -2,3 +2,4 @@ venv/
 __pycache__/
 train_ds_dir/
 test_ds_dir/
+*.keras
