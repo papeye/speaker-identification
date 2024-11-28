@@ -9,6 +9,8 @@ class Timer:
         self.prepare_train_time = None
         self.prepare_test_time = None
 
+        self.start_execution = time.time()
+
     def start_training(self) -> None:
         self.start_train = time.time()
 
@@ -32,9 +34,6 @@ class Timer:
 
     def end_predict(self) -> None:
         self.predict_time = time.time() - self.start_predict
-
-    def start_executing(self) -> None:
-        self.start_execution = time.time()
 
     def end_execution(self) -> None:
         self.execution_time = time.time() - self.start_execution

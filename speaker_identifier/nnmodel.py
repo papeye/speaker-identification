@@ -2,7 +2,7 @@ import os
 import keras
 import numpy as np
 import tensorflow as tf
-import datetime
+
 
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = (
@@ -21,10 +21,10 @@ class NNModel:
             metrics=["accuracy"],
         )
 
-    def __init__(self, model_name: str = "<timestamp>"):
+    def __init__(self, model_name: str):
         _model_filename = (
             f"{model_name}.keras"
-            if model_name != "<timestamp>"
+            if model_name != None
             else f"{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}.keras"
         )
         self.model_filepath = Utils.model_file_path(_model_filename)
