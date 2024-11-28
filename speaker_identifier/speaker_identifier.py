@@ -18,13 +18,11 @@ class SpeakerIdentifier:
     def __init__(self, model_name: str = "<timestamp>") -> None:
         self.timer = Timer()
 
-        name = (
+        self.name = (
             model_name
             if model_name != "<timestamp>"
             else datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
         )
-
-        self.nn_model = NNModel(model_name=name)
 
     def train(
         self,
@@ -40,6 +38,8 @@ class SpeakerIdentifier:
             cut_all_into_segments(train_data_dir, Config.dataset_train_audio)
 
             self.timer.end_prepare_train()
+
+        self.nn_model = NNModel(model_name=self.name)
 
         if training_type.train:
             self.timer.start_training()
