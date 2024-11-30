@@ -1,4 +1,5 @@
 import os
+import datetime
 
 from .timer import Timer
 from .config import Config
@@ -14,9 +15,14 @@ from .data_preprocessing.dataset_generator import (
 
 
 class SpeakerIdentifier:
-    def __init__(self):
+    def __init__(self, model_name: str = "<timestamp>") -> None:
         self.timer = Timer()
-        self.timer.start_executing()
+
+        self.name = (
+            model_name
+            if model_name != "<timestamp>"
+            else datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        )
 
     def train(
         self,
@@ -33,7 +39,7 @@ class SpeakerIdentifier:
 
             self.timer.end_prepare_train()
 
-        self.nn_model = NNModel()
+        self.nn_model = NNModel(model_name=self.name)
 
         if training_type.train:
             self.timer.start_training()

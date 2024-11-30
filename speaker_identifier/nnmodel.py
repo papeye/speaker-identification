@@ -2,35 +2,47 @@ import os
 import keras
 import numpy as np
 import tensorflow as tf
-import h5py
+
 
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = (
     "1"  # for This TensorFlow binary is optimized to use available CPU instructions...
 )
 
-
-from .config import Config
+from .config import Config, Utils
 
 
 class NNModel:
-    def __init__(self):
-        self.speaker_labels = os.listdir(Config.dataset_train_audio)
-        self.model = self.__build_model(
-            (Config.sampling_rate // 2, 1), len(self.speaker_labels)
-        )
+
+    def __compile_model(self):
         self.model.compile(
             optimizer="Adam",
             loss="sparse_categorical_crossentropy",
             metrics=["accuracy"],
         )
-        self.load()
-        self.model_save_filename = Config.model_file
+
+    def __init__(self, model_name: str):
+        _model_filename = (
+            f"{model_name}.keras"
+            if model_name != None
+            else f"{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}.keras"
+        )
+        self.model_filepath = Utils.model_file_path(_model_filename)
+
+        self.speaker_labels = os.listdir(Config.dataset_train_audio)
+        self.num_classes = len(self.speaker_labels)
+
+        try:
+            self.model = keras.models.load_model(self.model_filepath)
+        except ValueError as e:
+            print("Model file not found, creating new model")
+            self.__build_model((Config.sampling_rate // 2, 1))
+
         self.earlystopping_cb = keras.callbacks.EarlyStopping(
             patience=2, restore_best_weights=True
         )
         self.mdlcheckpoint_cb = keras.callbacks.ModelCheckpoint(
-            self.model_save_filename, monitor="val_accuracy", save_best_only=True
+            self.model_filepath, monitor="val_accuracy", save_best_only=True
         )
 
     def __residual_block(
@@ -46,7 +58,7 @@ class NNModel:
         x = keras.layers.Activation(activation)(x)
         return keras.layers.MaxPool1D(pool_size=2, strides=2)(x)
 
-    def __build_model(self, input_shape, num_classes: int) -> keras.Model:
+    def __build_model(self, input_shape) -> keras.Model:
         inputs = keras.layers.Input(shape=input_shape, name="input")
 
         x = self.__residual_block(inputs, 16, 2)
@@ -60,31 +72,39 @@ class NNModel:
         x = keras.layers.Dense(256, activation="relu")(x)
         x = keras.layers.Dense(128, activation="relu")(x)
 
-        outputs = keras.layers.Dense(num_classes, activation="softmax", name="output")(
-            x
+        outputs = keras.layers.Dense(
+            self.num_classes, activation="softmax", name="output"
+        )(x)
+
+        self.model = keras.models.Model(inputs=inputs, outputs=outputs)
+        self.__compile_model()
+
+    def _update_output_layer(self):
+        print(
+            f"Replacing the output layer with a new one with {self.num_classes} classes"
         )
 
-        return keras.models.Model(inputs=inputs, outputs=outputs)
+        x = self.model.layers[-2].output
+
+        new_output = keras.layers.Dense(
+            self.num_classes, activation="softmax", name="output"
+        )(x)
+
+        self.model = keras.models.Model(inputs=self.model.input, outputs=new_output)
+
+        self.__compile_model()
 
     def train(self, train_ds: tf.Tensor, valid_ds: tf.Tensor) -> None:
-        history = self.model.fit(
+        self._update_output_layer()
+
+        self.history = self.model.fit(
             train_ds,
             epochs=Config.epochs,
             validation_data=valid_ds,
             callbacks=[self.earlystopping_cb, self.mdlcheckpoint_cb],
         )
 
-        self.model.save_weights(Config.weights_file)
-
-    def load(self) -> None:
-        weights_file = Config.weights_file
-        output_dim = get_output_dim_from_weights(weights_file, "dense_2")
-
-        if output_dim == len(os.listdir(Config.dataset_train_audio)):
-            print("The number of speakers didn't change so previous weights are loaded")
-            self.model.load_weights(weights_file)
-        else:
-            print("No model was loaded")
+        print(f"Training finished on model: \n {self.model.summary()}")
 
     def predict(self, test_ds: tf.data.Dataset) -> dict[str, float]:
         audios, _ = next(iter(test_ds))
@@ -96,20 +116,3 @@ class NNModel:
         predicted_speaker = self.speaker_labels[predicted_speaker_index]
 
         return predicted_speaker, certainty_measure, self.speaker_labels
-
-
-def get_output_dim_from_weights(weights_file, output_layer_name):
-    with h5py.File(weights_file, "r") as f:
-        layers_group = f["layers"]
-        if output_layer_name in layers_group:
-            layer = layers_group[output_layer_name]
-            if "vars" in layer:
-                vars_group = layer["vars"]
-                # Identify weights dataset (the one with 2D shape)
-                for var_name in vars_group.keys():
-                    var_data = vars_group[var_name]
-                    if len(var_data.shape) == 2:
-                        weights = var_data
-                        output_dim = weights.shape[1]
-                        return output_dim
-    return None
