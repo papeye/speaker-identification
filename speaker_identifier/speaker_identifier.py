@@ -16,6 +16,7 @@ from .data_preprocessing.dataset_generator import (
 
 class SpeakerIdentifier:
     def __init__(self, hf_token: str, model_name: str = "<timestamp>") -> None:
+        self.hf_token = hf_token
         self.timer = Timer()
 
         self.name = (
@@ -35,7 +36,11 @@ class SpeakerIdentifier:
             self.timer.start_prepare_train()
 
             move_base_data_to_proper_folders()  # TODO Remove this method - it's obsolete if we use already divided data
-            cut_all_into_segments(train_data_dir, Config.dataset_train_audio)
+            cut_all_into_segments(
+                train_data_dir,
+                Config.dataset_train_audio,
+                self.hf_token,
+            )
 
             self.timer.end_prepare_train()
 
