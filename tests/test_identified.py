@@ -1,6 +1,5 @@
-import os
 from speaker_identifier import SpeakerIdentifier, TrainingType
-from common import read_hugging_face_token
+from .common import read_hugging_face_token
 
 minimun_threshold = 0.5  # TODO Update to 0.9 before release
 
