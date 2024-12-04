@@ -1,4 +1,6 @@
+import os
 from speaker_identifier import SpeakerIdentifier, TrainingType
+from common import read_hugging_face_token
 
 minimun_threshold = 0.5  # TODO Update to 0.9 before release
 
@@ -16,6 +18,8 @@ def run_predicting() -> float:
 
     train_example_dir = "example_data/train_data"
     test_example_dir = "example_data/test_data"
+
+    hf_token = read_hugging_face_token()
 
     speaker_identifier = SpeakerIdentifier()
 
