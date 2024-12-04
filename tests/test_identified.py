@@ -20,7 +20,7 @@ def run_predicting() -> float:
 
     hf_token = read_hugging_face_token()
 
-    speaker_identifier = SpeakerIdentifier()
+    speaker_identifier = SpeakerIdentifier(hf_token=hf_token)
 
     speaker_identifier.train(
         train_data_dir=train_example_dir,

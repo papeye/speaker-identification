@@ -12,12 +12,12 @@ from ..config import Config
 
 
 def cut_all_into_segments(
-    audios_dir: str, output_dir: str, subsegment_length: int = 1000
+    audios_dir: str, output_dir: str, hf_token: str, subsegment_length: int = 1000
 ) -> None:
 
     for audio in os.listdir(audios_dir):
         audio_path = os.path.join(audios_dir, audio)
-        AudioCutter(audio_path, output_dir, subsegment_length).cut()
+        AudioCutter(audio_path, output_dir, hf_token, subsegment_length).cut()
         print(
             f"All audios from {audios_dir} cut into segments of length {subsegment_length/ 1000}s and saved to ",
             output_dir,
@@ -34,13 +34,20 @@ class AudioCutter:
     """
 
     def __init__(
-        self, audio_path: str, output_path: str, subsegment_length: int = 1000
+        self,
+        audio_path: str,
+        output_path: str,
+        hf_token: str,
+        subsegment_length: int = 1000,
     ) -> None:
+        self.hf_token = hf_token
         self.audio_path = audio_path
         self.audio_name = os.path.basename(audio_path)
         self.output_path = os.path.join(output_path, self.audio_name)
+
         if os.path.exists(self.output_path):
             shutil.rmtree(self.output_path)
+
         os.makedirs(self.output_path)
         self.subsegment_length = subsegment_length
 
@@ -48,7 +55,7 @@ class AudioCutter:
         start_time = time.time()
 
         model = Model.from_pretrained(
-            "pyannote/segmentation", use_auth_token=Config.hugging_face_token
+            "pyannote/segmentation", use_auth_token=self.hf_token
         )
 
         pipeline = VoiceActivityDetection(segmentation=model)

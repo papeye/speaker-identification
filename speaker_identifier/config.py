@@ -4,7 +4,6 @@ package_dir = os.path.dirname(__file__)
 
 
 class Config:
-    hugging_face_token = "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"
 
     dataset_root = os.path.join(package_dir, "16000_pcm_speeches")
 

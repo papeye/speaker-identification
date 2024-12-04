@@ -15,7 +15,7 @@ from .data_preprocessing.dataset_generator import (
 
 
 class SpeakerIdentifier:
-    def __init__(self, model_name: str = "<timestamp>") -> None:
+    def __init__(self, hf_token: str, model_name: str = "<timestamp>") -> None:
         self.timer = Timer()
 
         self.name = (

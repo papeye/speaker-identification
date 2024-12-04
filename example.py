@@ -10,11 +10,17 @@ ADD_NOISE_TO_TRAINING_DATA = False
 PREPARE_TEST_DATA = True
 
 
+hf_token = "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"  # FIXME Remove this before release
+
+
 def main():
     train_example_dir = "example_data/train_data"
     test_example_dir = "example_data/test_data"
 
-    user1 = SpeakerIdentifier(model_name="user1")
+    user1 = SpeakerIdentifier(
+        model_name="user1",
+        hf_token=hf_token,
+    )
 
     user1.train(
         train_example_dir,
