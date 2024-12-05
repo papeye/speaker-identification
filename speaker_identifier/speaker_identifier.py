@@ -17,6 +17,7 @@ from .data_preprocessing.dataset_generator import (
 class SpeakerIdentifier:
     def __init__(self, hf_token: str, model_name: str = "<timestamp>") -> None:
         self.hf_token = hf_token
+
         self.timer = Timer()
 
         self.name = (
@@ -29,7 +30,8 @@ class SpeakerIdentifier:
         self,
         train_data_dir: str,
         training_type: TrainingType,
-        add_noise_to_training_data: bool,
+        add_noise: bool,
+        detect_voice_activity: bool = True,
     ) -> None:
 
         if training_type.prepareTrainData:
@@ -40,6 +42,7 @@ class SpeakerIdentifier:
                 train_data_dir,
                 Config.dataset_train_audio,
                 self.hf_token,
+                detect_voice_activity,
             )
 
             self.timer.end_prepare_train()
@@ -48,22 +51,29 @@ class SpeakerIdentifier:
 
         if training_type.train:
             self.timer.start_training()
-            noises = prepareNoise() if add_noise_to_training_data else None
+            noises = prepareNoise() if add_noise else None
 
             train_ds, valid_ds = generate_train_valid_ds(noises)
             self.nn_model.train(train_ds, valid_ds)
 
             self.timer.end_training()
 
-    def predict(self, test_data_dir: str, prepareTestData: bool) -> None:
-        if prepareTestData:
+    def predict(
+        self,
+        test_data_dir: str,
+        prepare_test_data: bool,
+        detect_voice_activity: bool = True,
+    ) -> None:
+        if prepare_test_data:
             self.timer.start_prepare_test()
 
             remove_dir(Config.dataset_test)
 
             for file in os.listdir(test_data_dir):
                 path = os.path.join(test_data_dir, file)
-                AudioCutter(path, Config.dataset_test, self.hf_token).cut()
+                AudioCutter(
+                    path, Config.dataset_test, self.hf_token, detect_voice_activity
+                ).cut()
             self.timer.end_prepare_test()
 
         correctly_identified = 0

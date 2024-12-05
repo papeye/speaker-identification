@@ -12,12 +12,18 @@ from ..config import Config
 
 
 def cut_all_into_segments(
-    audios_dir: str, output_dir: str, hf_token: str, subsegment_length: int = 1000
+    audios_dir: str,
+    output_dir: str,
+    hf_token: str,
+    detect_voice_activity: bool,
+    subsegment_length: int = 1000,
 ) -> None:
 
     for audio in os.listdir(audios_dir):
         audio_path = os.path.join(audios_dir, audio)
-        AudioCutter(audio_path, output_dir, hf_token, subsegment_length).cut()
+        AudioCutter(
+            audio_path, output_dir, hf_token, detect_voice_activity, subsegment_length
+        ).cut()
         print(
             f"All audios from {audios_dir} cut into segments of length {subsegment_length/ 1000}s and saved to ",
             output_dir,
@@ -38,20 +44,27 @@ class AudioCutter:
         audio_path: str,
         output_path: str,
         hf_token: str,
+        detect_voice_activity: bool = True,
         subsegment_length: int = 1000,
     ) -> None:
+        if detect_voice_activity and hf_token is None:
+            raise ValueError("hf_token is required for voice activity detection")
+
+        self.detect_voice_activity = detect_voice_activity
         self.hf_token = hf_token
         self.audio_path = audio_path
         self.audio_name = os.path.basename(audio_path)
         self.output_path = os.path.join(output_path, self.audio_name)
+        self.subsegment_length = subsegment_length
+
+        self.audio = AudioSegment.from_wav(self.audio_path)
 
         if os.path.exists(self.output_path):
             shutil.rmtree(self.output_path)
 
         os.makedirs(self.output_path)
-        self.subsegment_length = subsegment_length
 
-    def __diarize(self) -> List[Segment]:
+    def __detectVoiceActivity(self) -> List[Segment]:
         start_time = time.time()
 
         model = Model.from_pretrained(
@@ -78,7 +91,25 @@ class AudioCutter:
         ]
 
         print(
-            f"Diarization took {time.time() - start_time} seconds and found {len(segments)} segments"
+            f"Voice activity detection took {time.time() - start_time} seconds and found {len(segments)} segments"
+        )
+
+        return segments
+
+    def __cut(self) -> List[Segment]:
+        start_time = time.time()
+        segments = []
+        start = 0.0
+
+        audio_duration = len(self.audio)
+
+        while start < audio_duration:
+            stop = min(start + self.subsegment_length, audio_duration)
+            segments.append(Segment(start, stop, self.audio_name))
+            start += self.subsegment_length
+
+        print(
+            f"Cutting audio took {time.time() - start_time} seconds and produced {len(segments)} segments"
         )
 
         return segments
@@ -105,7 +136,6 @@ class AudioCutter:
         return subsegments
 
     def __save_subsegments(self, subsegments: List[Segment]) -> None:
-        audio = AudioSegment.from_wav(self.audio_path)
 
         if not os.path.exists(self.output_path):
             os.makedirs(self.output_path)
@@ -116,7 +146,7 @@ class AudioCutter:
             file_name = f"{start} - {end}.wav"
 
             segment_output = os.path.join(self.output_path, file_name)
-            new_audio = audio[start:end]
+            new_audio = self.audio[start:end]
             new_audio = new_audio.set_frame_rate(Config.sampling_rate)
             new_audio = new_audio.set_sample_width(Config.sample_width)
             new_audio.export(segment_output, format="wav")
@@ -124,6 +154,10 @@ class AudioCutter:
         print(f"Saved {len(subsegments)} subsegments to {self.output_path}")
 
     def cut(self) -> None:
-        diarization = self.__diarize()
-        subsegments = self.__segment(diarization)
+        subsegments = (
+            self.__segment(self.__detectVoiceActivity())
+            if self.detect_voice_activity
+            else self.__cut()
+        )
+
         self.__save_subsegments(subsegments)
