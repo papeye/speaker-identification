@@ -12,6 +12,7 @@ from .data_preprocessing.dataset_generator import (
     generate_train_valid_ds,
     generate_test_ds,
 )
+from .vad_type import VadType
 
 
 class SpeakerIdentifier:
@@ -31,7 +32,7 @@ class SpeakerIdentifier:
         train_data_dir: str,
         training_type: TrainingType,
         add_noise: bool,
-        detect_voice_activity: bool = True,
+        detect_voice_activity: VadType,
     ) -> None:
 
         if training_type.prepareTrainData:
@@ -62,7 +63,7 @@ class SpeakerIdentifier:
         self,
         test_data_dir: str,
         prepare_test_data: bool,
-        detect_voice_activity: bool = True,
+        detect_voice_activity: VadType,
     ) -> None:
         if prepare_test_data:
             self.timer.start_prepare_test()

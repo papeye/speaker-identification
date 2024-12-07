@@ -5,24 +5,29 @@ import shutil
 import time
 from pyannote.audio import Model
 from pyannote.audio.pipelines import VoiceActivityDetection
+from silero_vad import load_silero_vad, read_audio, get_speech_timestamps
 
 
 from .models.segment import Segment
 from ..config import Config
-
+from ..vad_type import VadType
 
 def cut_all_into_segments(
     audios_dir: str,
     output_dir: str,
     hf_token: str,
-    detect_voice_activity: bool,
+    detect_voice_activity: VadType,
     subsegment_length: int = 1000,
 ) -> None:
 
     for audio in os.listdir(audios_dir):
         audio_path = os.path.join(audios_dir, audio)
         AudioCutter(
-            audio_path, output_dir, hf_token, detect_voice_activity, subsegment_length
+            audio_path, 
+            output_dir, 
+            hf_token, 
+            detect_voice_activity, 
+            subsegment_length,
         ).cut()
         print(
             f"All audios from {audios_dir} cut into segments of length {subsegment_length/ 1000}s and saved to ",
@@ -44,7 +49,7 @@ class AudioCutter:
         audio_path: str,
         output_path: str,
         hf_token: str,
-        detect_voice_activity: bool = True,
+        detect_voice_activity: VadType,
         subsegment_length: int = 1000,
     ) -> None:
         if detect_voice_activity and hf_token is None:
@@ -96,26 +101,20 @@ class AudioCutter:
         )
 
         return segments
+    
+    
 
 
     def __simple_cut(self) -> List[Segment]:
         ''' Cut audio into segments of subsegment_length length '''
-        start_time = time.time()
-        segments = []
         start = 0.0
-
         audio_duration = len(self.audio)
-
-        while start < audio_duration:
-            stop = min(start + self.subsegment_length, audio_duration)
-            segments.append(Segment(start, stop, self.audio_name))
-            start += self.subsegment_length
-
-        print(
-            f"Cutting audio took {time.time() - start_time} seconds and produced {len(segments)} segments"
-        )
-
-        return segments
+        
+        print(f"Audio cut into 1 segment of length {audio_duration / 1000}s")
+        
+        return [Segment(start, audio_duration, self.audio_name)]
+        
+    
 
     def __segment(self, segments: List[Segment]) -> List[Segment]:
         subsegments = []
@@ -155,12 +154,49 @@ class AudioCutter:
             new_audio.export(segment_output, format="wav")
 
         print(f"Saved {len(subsegments)} subsegments to {self.output_path}")
+        
+        
+    def __detect_voice_activity_silero(self) -> List[Segment]:
+        """Detect voice activity in audio using Silero VAD model"""
+        start_time = time.time()
 
-    def cut(self) -> None:
-        subsegments = (
-            self.__segment(self.__detect_voice_activity_pretrained_model())
-            if self.detect_voice_activity
-            else self.__simple_cut()
+        # Load Silero VAD model
+        model = load_silero_vad()
+
+        # Read audio file
+        wav = read_audio(self.audio_path)
+
+        # Get speech timestamps from the audio
+        speech_timestamps = get_speech_timestamps(wav, model, return_seconds=True)
+
+        # Create segments from the speech timestamps
+        segments = [
+            Segment(
+                int(ts['start'] * 1000),  
+                int(ts['end'] * 1000),      
+                self.audio_name
+            )
+            for ts in speech_timestamps
+        ]
+
+        print(
+            f"Voice activity detection took {time.time() - start_time} seconds and found {len(segments)} segments"
         )
 
+        return segments
+        
+        
+        
+        
+
+    def cut(self) -> None:
+        match self.detect_voice_activity:
+            case VadType.PYANNOTE:
+                segments = self.__detect_voice_activity_pretrained_model()
+            case VadType.SILERO:
+                segments = self.__detect_voice_activity_silero()
+            case VadType.NONE:
+                segments = self.__simple_cut()
+                
+        subsegments = self.__segment(segments)
         self.__save_subsegments(subsegments)

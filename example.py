@@ -1,4 +1,4 @@
-from speaker_identifier import SpeakerIdentifier, TrainingType, display_predictions
+from speaker_identifier import SpeakerIdentifier, TrainingType, display_predictions, VadType
 
 
 """ Flags for execution control"""
@@ -9,9 +9,8 @@ TRAINING_TYPE = TrainingType.PREPARE_DATA_AND_TRAIN
 ADD_NOISE_TO_TRAINING_DATA = False
 PREPARE_TEST_DATA = True
 
-DETECT_VOICE_ACTIVITY_TRAINING = False
-DETECT_VOICE_ACTIVITY_PREDICTION = False
-
+TRAINING_VAD = VadType.NONE
+PREDICTION_VAD = VadType.SILERO
 
 hf_token = "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"  # FIXME Remove this before release
 
@@ -29,13 +28,13 @@ def main():
         train_data_dir=train_example_dir,
         training_type=TRAINING_TYPE,
         add_noise=ADD_NOISE_TO_TRAINING_DATA,
-        detect_voice_activity=DETECT_VOICE_ACTIVITY_TRAINING,
+        detect_voice_activity=TRAINING_VAD,
     )
 
     predictions, correctly_identified = user1.predict(
         test_data_dir=test_example_dir,
         prepare_test_data=PREPARE_TEST_DATA,
-        detect_voice_activity=DETECT_VOICE_ACTIVITY_PREDICTION,
+        detect_voice_activity=PREDICTION_VAD,
     )
 
     display_predictions(predictions, correctly_identified)
