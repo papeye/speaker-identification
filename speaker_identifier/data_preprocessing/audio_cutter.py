@@ -64,7 +64,8 @@ class AudioCutter:
 
         os.makedirs(self.output_path)
 
-    def __detectVoiceActivity(self) -> List[Segment]:
+    def __detect_voice_activity_pretrained_model(self) -> List[Segment]:
+        ''' Detect voice activity in audio usign pyannote/segmentation model '''
         start_time = time.time()
 
         model = Model.from_pretrained(
@@ -96,7 +97,9 @@ class AudioCutter:
 
         return segments
 
-    def __cut(self) -> List[Segment]:
+
+    def __simple_cut(self) -> List[Segment]:
+        ''' Cut audio into segments of subsegment_length length '''
         start_time = time.time()
         segments = []
         start = 0.0
@@ -155,9 +158,9 @@ class AudioCutter:
 
     def cut(self) -> None:
         subsegments = (
-            self.__segment(self.__detectVoiceActivity())
+            self.__segment(self.__detect_voice_activity_pretrained_model())
             if self.detect_voice_activity
-            else self.__cut()
+            else self.__simple_cut()
         )
 
         self.__save_subsegments(subsegments)
