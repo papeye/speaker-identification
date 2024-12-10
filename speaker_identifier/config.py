@@ -10,6 +10,9 @@ class Config:
 
     dataset_train = "train_ds_dir"
     dataset_test = "test_ds_dir"
+    
+    n_base_speakers_max = len(os.listdir(dataset_root)) - 2
+    n_base_speakers = n_base_speakers_max #For now max, can be adjusted
 
     audio_subfolder = "audio"
     noise_subfolder = "noise"

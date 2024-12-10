@@ -34,8 +34,12 @@ class SpeakerIdentifier:
         if training_type.prepareTrainData:
             self.timer.start_prepare_train()
 
-            move_base_data_to_proper_folders()  # TODO Remove this method - it's obsolete if we use already divided data
-            cut_all_into_segments(train_data_dir, Config.dataset_train_audio)
+            if Config.n_base_speakers > Config.n_base_speakers_max:
+                print(f"Warning: n_base_speakers ({Config.n_base_speakers}) exceeds the maximum allowed ({Config.n_base_speakers_max}).")
+                sys.exit()
+            else:
+                move_base_data_to_proper_folders(Config.n_base_speakers)  # TODO Remove this method - it's obsolete if we use already divided data
+                cut_all_into_segments(train_data_dir, Config.dataset_train_audio)
 
             self.timer.end_prepare_train()
 
