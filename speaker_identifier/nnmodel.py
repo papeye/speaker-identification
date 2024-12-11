@@ -41,6 +41,11 @@ class NNModel:
         self.earlystopping_cb = keras.callbacks.EarlyStopping(
             patience=2, restore_best_weights=True
         )
+
+        self.early_stopping_accuracy = EarlyStoppingByAccuracy(
+            target_accuracy=Config.target_accuracy
+        )
+
         self.mdlcheckpoint_cb = keras.callbacks.ModelCheckpoint(
             self.model_filepath, monitor="val_accuracy", save_best_only=True
         )
@@ -96,12 +101,18 @@ class NNModel:
 
     def train(self, train_ds: tf.Tensor, valid_ds: tf.Tensor) -> None:
         self._update_output_layer()
+        # train_ds = train_ds.repeat()
 
         self.history = self.model.fit(
-            train_ds,
+            train_ds.repeat(),
             epochs=Config.epochs,
+            steps_per_epoch=40,
             validation_data=valid_ds,
-            callbacks=[self.earlystopping_cb, self.mdlcheckpoint_cb],
+            callbacks=[
+                # self.earlystopping_cb,
+                self.mdlcheckpoint_cb,
+                self.early_stopping_accuracy,
+            ],
         )
 
         print(f"Training finished on model: \n {self.model.summary()}")
@@ -116,3 +127,17 @@ class NNModel:
         predicted_speaker = self.speaker_labels[predicted_speaker_index]
 
         return predicted_speaker, certainty_measure, self.speaker_labels
+
+
+class EarlyStoppingByAccuracy(tf.keras.callbacks.Callback):
+    def __init__(self, target_accuracy):
+        super().__init__()
+        self.target_accuracy = target_accuracy
+
+    def on_epoch_end(self, epoch, logs=None):
+        val_accuracy = logs.get("val_accuracy")
+        if val_accuracy and val_accuracy >= self.target_accuracy:
+            print(
+                f"\nStopping training early: val_accuracy reached {val_accuracy:.4f} at epoch {epoch + 1}"
+            )
+            self.model.stop_training = True
