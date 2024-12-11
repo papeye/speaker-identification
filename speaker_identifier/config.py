@@ -8,9 +8,9 @@ class Config:
 
     dataset_train = "train_ds_dir"
     dataset_test = "test_ds_dir"
-    
+
     n_base_speakers_max = len(os.listdir(dataset_root)) - 2
-    n_base_speakers = n_base_speakers_max #For now max, can be adjusted
+    n_base_speakers = n_base_speakers_max  # For now max, can be adjusted
 
     audio_subfolder = "audio"
     noise_subfolder = "noise"
@@ -27,8 +27,8 @@ class Config:
     sample_width = 2  # 16-bit audio uses 2 bytes per sample (since 16 bits = 2 bytes)
     scale = 0.5
     batch_size = 128
-    epochs = 20
-    target_accuracy = 0.9
+    epochs = 50
+    target_accuracy = 0.94
 
 
 class Utils:
