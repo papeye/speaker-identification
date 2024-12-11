@@ -20,14 +20,14 @@ class Config:
     dataset_train_audio = os.path.join(dataset_train, audio_subfolder)
     dataset_train_noise = os.path.join(dataset_train, noise_subfolder)
 
-    valid_split = 0.1
+    valid_split = 0.2
     shuffle_seed = 43
     sampling_rate = 16000
     sample_width = 2  # 16-bit audio uses 2 bytes per sample (since 16 bits = 2 bytes)
     scale = 0.5
     batch_size = 128
-    epochs = 50
-    target_accuracy = 0.94
+    epochs = 20
+    target_accuracy = 0.9
 
 
 class Utils:

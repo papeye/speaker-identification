@@ -138,7 +138,8 @@ def generate_train_valid_ds(
 
     valid_ds = __paths_and_labels_to_dataset(valid_audio_paths, valid_labels)
 
-    valid_ds = valid_ds.shuffle(buffer_size=32 * 8, seed=Config.shuffle_seed).batch(32)
+    # valid_ds = valid_ds.shuffle(buffer_size=32 * 8, seed=Config.shuffle_seed).batch(32)
+    valid_ds = valid_ds.batch(32)
 
     if noises is not None:
         # Add noise to the training set

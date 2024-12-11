@@ -2,6 +2,7 @@ import os
 import keras
 import numpy as np
 import tensorflow as tf
+import math
 
 
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
@@ -101,15 +102,16 @@ class NNModel:
 
     def train(self, train_ds: tf.Tensor, valid_ds: tf.Tensor) -> None:
         self._update_output_layer()
-        # train_ds = train_ds.repeat()
+        steps_per_epoch = math.ceil(train_ds.cardinality().numpy() * 0.6)
+        print(steps_per_epoch)
 
         self.history = self.model.fit(
             train_ds.repeat(),
             epochs=Config.epochs,
-            steps_per_epoch=40,
+            steps_per_epoch=steps_per_epoch,
             validation_data=valid_ds,
             callbacks=[
-                # self.earlystopping_cb,
+                self.earlystopping_cb,
                 self.mdlcheckpoint_cb,
                 self.early_stopping_accuracy,
             ],
