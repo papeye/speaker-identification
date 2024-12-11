@@ -23,11 +23,13 @@ def run_predicting() -> float:
         train_data_dir=train_example_dir,
         training_type=TrainingType.PREPARE_DATA_AND_TRAIN,
         add_noise_to_training_data=False,
+        with_vad=True,
     )
 
     _, correctly_identified = speaker_identifier.predict(
         test_data_dir=test_example_dir,
-        prepareTestData=True,
+        prepare_test_data=True,
+        with_vad=True,
     )
 
     return correctly_identified
