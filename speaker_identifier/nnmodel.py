@@ -70,8 +70,8 @@ class NNModel:
         x = self.__residual_block(inputs, 16, 2)
         x = self.__residual_block(x, 32, 2)
         x = self.__residual_block(x, 64, 3)
-        x = self.__residual_block(x, 128, 3)
-        x = self.__residual_block(x, 128, 3)
+        # x = self.__residual_block(x, 128, 3)
+        # x = self.__residual_block(x, 128, 3)
 
         x = keras.layers.AveragePooling1D(pool_size=3, strides=3)(x)
         x = keras.layers.Flatten()(x)
