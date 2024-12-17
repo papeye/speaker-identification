@@ -29,13 +29,16 @@ class SpeakerIdentifier:
         train_data_dir: str,
         training_type: TrainingType,
         add_noise_to_training_data: bool,
+        with_vad: bool = True,
     ) -> None:
 
         if training_type.prepareTrainData:
             self.timer.start_prepare_train()
 
             move_base_data_to_proper_folders()  # TODO Remove this method - it's obsolete if we use already divided data
-            cut_all_into_segments(train_data_dir, Config.dataset_train_audio)
+            cut_all_into_segments(
+                train_data_dir, Config.dataset_train_audio, with_vad=with_vad
+            )
 
             self.timer.end_prepare_train()
 
@@ -50,15 +53,20 @@ class SpeakerIdentifier:
 
             self.timer.end_training()
 
-    def predict(self, test_data_dir: str, prepareTestData: bool) -> None:
-        if prepareTestData:
+    def predict(
+        self,
+        test_data_dir: str,
+        prepare_test_data: bool,
+        with_vad: bool = True,
+    ) -> None:
+        if prepare_test_data:
             self.timer.start_prepare_test()
 
             remove_dir(Config.dataset_test)
 
             for file in os.listdir(test_data_dir):
                 path = os.path.join(test_data_dir, file)
-                AudioCutter(path, Config.dataset_test).cut()
+                AudioCutter(path, Config.dataset_test).cut(with_vad)
             self.timer.end_prepare_test()
 
         correctly_identified = 0
