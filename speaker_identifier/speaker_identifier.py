@@ -35,7 +35,7 @@ class SpeakerIdentifier:
         if training_type.prepareTrainData:
             self.timer.start_prepare_train()
 
-            move_base_data_to_proper_folders()  # TODO Remove this method - it's obsolete if we use already divided data
+            move_base_data_to_proper_folders(n_base_speakers)  # TODO Remove this method - it's obsolete if we use already divided data
             cut_all_into_segments(
                 train_data_dir, Config.dataset_train_audio, with_vad=with_vad
             )
