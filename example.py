@@ -2,12 +2,12 @@ from speaker_identifier import SpeakerIdentifier, TrainingType, display_predicti
 
 
 """ Flags for execution control"""
-TRAINING_TYPE = TrainingType.PREPARE_DATA_AND_TRAIN
-# TRAINING_TYPE = TrainingType.TRAIN_ONLY
+# TRAINING_TYPE = TrainingType.PREPARE_DATA_AND_TRAIN
+TRAINING_TYPE = TrainingType.TRAIN_ONLY
 # TRAINING_TYPE = TrainingType.NO_TRAINING
 
 ADD_NOISE_TO_TRAINING_DATA = False
-PREPARE_TEST_DATA = True
+PREPARE_TEST_DATA = False
 
 TRAINING_VAD = True
 PREDICTING_VAD = True
@@ -26,16 +26,20 @@ def main():
         with_vad=TRAINING_VAD,
     )
 
-    predictions, correctly_identified, mean_correctly_identified_segments = (
-        user1.predict(
-            test_data_dir=test_example_dir,
-            prepare_test_data=PREPARE_TEST_DATA,
-            with_vad=PREDICTING_VAD,
-        )
+    (
+        predictions,
+        correctly_identified,
+        percent_of_correctly_identified_segments,
+    ) = user1.predict(
+        test_data_dir=test_example_dir,
+        prepare_test_data=PREPARE_TEST_DATA,
+        with_vad=PREDICTING_VAD,
     )
 
     display_predictions(
-        predictions, correctly_identified, mean_correctly_identified_segments
+        predictions,
+        correctly_identified,
+        percent_of_correctly_identified_segments,
     )
 
     print(user1.timer)

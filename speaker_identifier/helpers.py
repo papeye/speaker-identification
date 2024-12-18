@@ -52,7 +52,9 @@ def remove_dir(dir: str):
 
 
 def display_predictions(
-    predictions, correctly_identified, mean_correctly_identified_segments
+    predictions,
+    correctly_identified,
+    correctly_identified_segments,
 ):
 
     for detail in predictions:
@@ -86,4 +88,4 @@ def display_predictions(
                     print(f"{speaker_labels[i]}: {certainty_measure[i]:.2f}%")
 
     print(f"\nCorrectly identified speakers: {correctly_identified}")
-    print(f"\nCorrectly identified segments: {mean_correctly_identified_segments:.2f}%")
+    print(f"\nCorrectly identified segments: {correctly_identified_segments:.2f}%")

@@ -74,7 +74,8 @@ class SpeakerIdentifier:
 
         correctly_identified = 0
         predictions = []
-        correctly_identified_segments = []
+        total_correctly_identified_segments = 0
+        total_number_segments = 0
 
         self.timer.start_predicting()
 
@@ -83,16 +84,24 @@ class SpeakerIdentifier:
 
             test_ds = generate_test_ds(path, dir)
 
-            predicted_speaker, certainty_measure, speaker_labels = (
-                self.nn_model.predict(test_ds)
-            )
+            (
+                predicted_speaker,
+                certainty_measure,
+                speaker_labels,
+                predicted_speaker_index_for_sample,
+            ) = self.nn_model.predict(test_ds)
             if predicted_speaker == dir:
                 correctly_identified += 1
 
             correct_speaker_index = speaker_labels.index(dir)
-            correctly_identified_segments.append(
-                certainty_measure[correct_speaker_index]
+
+            correct_segment_mask = (
+                predicted_speaker_index_for_sample == correct_speaker_index
             )
+            number_correctly_identified_segments = np.sum(correct_segment_mask)
+            total_correctly_identified_segments += number_correctly_identified_segments
+
+            total_number_segments += len(predicted_speaker_index_for_sample)
 
             predictions.append(
                 {
@@ -104,7 +113,6 @@ class SpeakerIdentifier:
             )
 
         total_speakers = len(os.listdir(Config.dataset_test))
-        mean_correctly_identified_segments = np.mean(correctly_identified_segments)
 
         self.timer.end_predict()
         self.timer.end_execution()
@@ -112,5 +120,5 @@ class SpeakerIdentifier:
         return (
             predictions,
             correctly_identified / total_speakers,
-            mean_correctly_identified_segments,
+            100 * total_correctly_identified_segments / total_number_segments,
         )

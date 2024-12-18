@@ -26,7 +26,7 @@ def run_predicting() -> float:
         with_vad=True,
     )
 
-    _, correctly_identified = speaker_identifier.predict(
+    _, correctly_identified, _ = speaker_identifier.predict(
         test_data_dir=test_example_dir,
         prepare_test_data=True,
         with_vad=True,

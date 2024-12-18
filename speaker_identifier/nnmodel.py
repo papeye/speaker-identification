@@ -129,7 +129,14 @@ class NNModel:
         predicted_speaker_index = np.argmax(certainty_measure, axis=-1)
         predicted_speaker = self.speaker_labels[predicted_speaker_index]
 
-        return predicted_speaker, certainty_measure, self.speaker_labels
+        predicted_speaker_index_for_sample = np.argmax(y_pred, axis=-1)
+
+        return (
+            predicted_speaker,
+            certainty_measure,
+            self.speaker_labels,
+            predicted_speaker_index_for_sample,
+        )
 
 
 class EarlyStoppingByAccuracy(tf.keras.callbacks.Callback):
