@@ -1,5 +1,6 @@
 import os
 import datetime
+import numpy as np
 
 from .timer import Timer
 from .config import Config
@@ -35,7 +36,9 @@ class SpeakerIdentifier:
         if training_type.prepareTrainData:
             self.timer.start_prepare_train()
 
-            move_base_data_to_proper_folders(Config.n_base_speakers)  # TODO Remove this method - it's obsolete if we use already divided data
+            move_base_data_to_proper_folders(
+                Config.n_base_speakers
+            )  # TODO Remove this method - it's obsolete if we use already divided data
             cut_all_into_segments(
                 train_data_dir, Config.dataset_train_audio, with_vad=with_vad
             )
@@ -71,6 +74,7 @@ class SpeakerIdentifier:
 
         correctly_identified = 0
         predictions = []
+        correctly_identified_segments = []
 
         self.timer.start_predicting()
 
@@ -85,6 +89,11 @@ class SpeakerIdentifier:
             if predicted_speaker == dir:
                 correctly_identified += 1
 
+            correct_speaker_index = speaker_labels.index(dir)
+            correctly_identified_segments.append(
+                certainty_measure[correct_speaker_index]
+            )
+
             predictions.append(
                 {
                     "correct_speaker": dir,
@@ -95,8 +104,13 @@ class SpeakerIdentifier:
             )
 
         total_speakers = len(os.listdir(Config.dataset_test))
+        mean_correctly_identified_segments = np.mean(correctly_identified_segments)
 
         self.timer.end_predict()
         self.timer.end_execution()
 
-        return predictions, correctly_identified / total_speakers
+        return (
+            predictions,
+            correctly_identified / total_speakers,
+            mean_correctly_identified_segments,
+        )

@@ -28,7 +28,7 @@ class Config:
     scale = 0.5
     batch_size = 128
     epochs = 20
-    target_accuracy = 0.9
+    target_accuracy = 0.92
 
 
 class Utils:

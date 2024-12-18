@@ -35,6 +35,7 @@ class NNModel:
 
         try:
             self.model = keras.models.load_model(self.model_filepath)
+            print("Found existing model which will be used for initialization")
         except ValueError as e:
             print("Model file not found, creating new model")
             self.__build_model((Config.sampling_rate // 2, 1))
@@ -77,6 +78,7 @@ class NNModel:
         x = keras.layers.Flatten()(x)
         x = keras.layers.Dense(256, activation="relu")(x)
         # x = keras.layers.Dense(128, activation="relu")(x)
+        # x = keras.layers.Dense(64, activation="relu")(x)
 
         outputs = keras.layers.Dense(
             self.num_classes, activation="softmax", name="output"
@@ -102,8 +104,7 @@ class NNModel:
 
     def train(self, train_ds: tf.Tensor, valid_ds: tf.Tensor) -> None:
         self._update_output_layer()
-        steps_per_epoch = math.ceil(train_ds.cardinality().numpy() * 0.6)
-        print(steps_per_epoch)
+        steps_per_epoch = math.ceil(train_ds.cardinality().numpy() * 0.3)
 
         self.history = self.model.fit(
             train_ds.repeat(),

@@ -45,12 +45,15 @@ def move_base_data_to_proper_folders(n_speakers: int) -> None:
                     # Stop processing if we've reached the desired number of folders
                     break
 
+
 def remove_dir(dir: str):
     if os.path.exists(dir):
         shutil.rmtree(dir)
 
 
-def display_predictions(predictions, correctly_identified):
+def display_predictions(
+    predictions, correctly_identified, mean_correctly_identified_segments
+):
 
     for detail in predictions:
         correct_speaker = detail["correct_speaker"]
@@ -83,3 +86,4 @@ def display_predictions(predictions, correctly_identified):
                     print(f"{speaker_labels[i]}: {certainty_measure[i]:.2f}%")
 
     print(f"\nCorrectly identified speakers: {correctly_identified}")
+    print(f"\nCorrectly identified segments: {mean_correctly_identified_segments:.2f}%")
