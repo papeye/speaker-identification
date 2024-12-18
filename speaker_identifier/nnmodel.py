@@ -19,7 +19,8 @@ class NNModel:
         self.model.compile(
             optimizer="Adam",
             loss="sparse_categorical_crossentropy",
-            metrics=["accuracy"],
+            metrics=["sparse_categorical_accuracy"],
+            # metrics=["accuracy"],
         )
 
     def __init__(self, model_name: str):
@@ -49,7 +50,9 @@ class NNModel:
         )
 
         self.mdlcheckpoint_cb = keras.callbacks.ModelCheckpoint(
-            self.model_filepath, monitor="val_accuracy", save_best_only=True
+            self.model_filepath,
+            monitor="sparse_categorical_accuracy",
+            save_best_only=True,
         )
 
     def __residual_block(
@@ -104,7 +107,7 @@ class NNModel:
 
     def train(self, train_ds: tf.Tensor, valid_ds: tf.Tensor) -> None:
         self._update_output_layer()
-        steps_per_epoch = math.ceil(train_ds.cardinality().numpy() * 0.3)
+        steps_per_epoch = math.ceil(train_ds.cardinality().numpy() * 0.5)
 
         self.history = self.model.fit(
             train_ds.repeat(),
@@ -118,7 +121,7 @@ class NNModel:
             ],
         )
 
-        print(f"Training finished on model: \n {self.model.summary()}")
+        print(f"Training finished on model:")  # \n {self.model.summary()}")
 
     def predict(self, test_ds: tf.data.Dataset) -> dict[str, float]:
         audios, _ = next(iter(test_ds))
@@ -145,7 +148,7 @@ class EarlyStoppingByAccuracy(tf.keras.callbacks.Callback):
         self.target_accuracy = target_accuracy
 
     def on_epoch_end(self, epoch, logs=None):
-        val_accuracy = logs.get("val_accuracy")
+        val_accuracy = logs.get("val_sparse_categorical_accuracy")
         if val_accuracy and val_accuracy >= self.target_accuracy:
             print(
                 f"\nStopping training early: val_accuracy reached {val_accuracy:.4f} at epoch {epoch + 1}"
