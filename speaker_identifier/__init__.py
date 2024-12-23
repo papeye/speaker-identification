@@ -1,5 +1,4 @@
 from .speaker_identifier import SpeakerIdentifier
-from .speaker_identifier import TrainingType
-from .helpers import display_predictions
+from .prediction_result import PredictionResult
 
-__all__ = ["SpeakerIdentifier", "TrainingType", "display_predictions"]
+__all__ = ["SpeakerIdentifier", "PredictionResult"]

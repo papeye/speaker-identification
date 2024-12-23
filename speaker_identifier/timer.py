@@ -40,9 +40,9 @@ class Timer:
 
     def __repr__(self) -> str:
         return f"""
-        Execution {self.execution_time} \n
-        Train: {self.training_time if self.training_time is not None else 0} \n
-        Prepare train: {self.prepare_train_time if self.prepare_train_time is not None else 0} \n
-        Prepare test: {self.prepare_test_time if self.prepare_test_time is not None else 0} \n
-        Predict: {self.predict_time} \n
+        Execution {self.execution_time}s \n
+        Train: {self.training_time if self.training_time is not None else 0}s \n
+        Prepare train: {self.prepare_train_time if self.prepare_train_time is not None else 0}s \n
+        Prepare test: {self.prepare_test_time if self.prepare_test_time is not None else 0}s \n
+        Predict: {self.predict_time}s \n
         """
