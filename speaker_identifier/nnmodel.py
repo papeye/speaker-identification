@@ -18,7 +18,7 @@ class NNModel:
         self.model.compile(
             optimizer="Adam",
             loss="sparse_categorical_crossentropy",
-            metrics=["accuracy"],
+            metrics=["accuracy", "sparse_categorical_accuracy"],
         )
 
     def __init__(self, model_name: str):
@@ -64,13 +64,10 @@ class NNModel:
         x = self.__residual_block(inputs, 16, 2)
         x = self.__residual_block(x, 32, 2)
         x = self.__residual_block(x, 64, 3)
-        x = self.__residual_block(x, 128, 3)
-        x = self.__residual_block(x, 128, 3)
 
-        x = keras.layers.AveragePooling1D(pool_size=3, strides=3)(x)
+        x = keras.layers.MaxPooling1D(pool_size=3, strides=3)(x)
         x = keras.layers.Flatten()(x)
         x = keras.layers.Dense(256, activation="relu")(x)
-        x = keras.layers.Dense(128, activation="relu")(x)
 
         outputs = keras.layers.Dense(
             self.num_classes, activation="softmax", name="output"
