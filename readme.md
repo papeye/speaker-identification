@@ -21,3 +21,7 @@ python -m venv venv
 ```
 pip install -r requirements.txt
 ```
+### Example run on 20 speakers using 
+```
+python .\example.py
+```
