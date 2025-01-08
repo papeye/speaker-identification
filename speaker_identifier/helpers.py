@@ -21,7 +21,6 @@ def move_base_data_to_proper_folders(training_ds_dir: str) -> None:
     """Divides base data into audio and noise folders"""
 
     n_base_speakers = Config.n_speakers - len(os.listdir(training_ds_dir))
-    print(n_base_speakers, len(os.listdir(training_ds_dir)))
 
     if n_base_speakers < 0:
         n_base_speakers = 0
