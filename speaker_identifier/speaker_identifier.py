@@ -15,9 +15,10 @@ from .data_preprocessing.dataset_generator import (
 
 
 class SpeakerIdentifier:
-    def __init__(self, model_name: str = "<timestamp>") -> None:
+    def __init__(self, training_ds_dir: str, model_name: str = "<timestamp>") -> None:
         self.timer = Timer()
 
+        self.training_ds_dir = training_ds_dir
         self.name = (
             model_name
             if model_name != "<timestamp>"
@@ -35,7 +36,9 @@ class SpeakerIdentifier:
         if training_type.prepareTrainData:
             self.timer.start_prepare_train()
 
-            move_base_data_to_proper_folders(Config.n_base_speakers)  # TODO Remove this method - it's obsolete if we use already divided data
+            move_base_data_to_proper_folders(
+                self.training_ds_dir
+            )  # TODO Remove this method - it's obsolete if we use already divided data
             cut_all_into_segments(
                 train_data_dir, Config.dataset_train_audio, with_vad=with_vad
             )

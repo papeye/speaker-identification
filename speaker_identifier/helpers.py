@@ -17,8 +17,14 @@ def move_files(source: str, target: str) -> None:
         shutil.copy(source_path, destination_path)
 
 
-def move_base_data_to_proper_folders(n_speakers: int) -> None:
+def move_base_data_to_proper_folders(training_ds_dir: str) -> None:
     """Divides base data into audio and noise folders"""
+
+    n_base_speakers = Config.n_speakers - len(os.listdir(training_ds_dir))
+    print(n_base_speakers, len(os.listdir(training_ds_dir)))
+
+    if n_base_speakers < 0:
+        n_base_speakers = 0
 
     processed_count = 0
 
@@ -34,7 +40,7 @@ def move_base_data_to_proper_folders(n_speakers: int) -> None:
                 )
             else:
                 # Process speaker folders
-                if processed_count < n_speakers:
+                if processed_count < n_base_speakers:
                     shutil.copytree(
                         os.path.join(Config.dataset_root, folder),
                         os.path.join(Config.dataset_train_audio, folder),
@@ -44,6 +50,7 @@ def move_base_data_to_proper_folders(n_speakers: int) -> None:
                 else:
                     # Stop processing if we've reached the desired number of folders
                     break
+
 
 def remove_dir(dir: str):
     if os.path.exists(dir):
