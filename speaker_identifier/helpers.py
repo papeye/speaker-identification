@@ -58,28 +58,38 @@ def display_predictions(predictions, correctly_identified):
         certainty_measure = detail["certainty_measure"]
         speaker_labels = detail["speaker_labels"]
         max_prediction = np.max(certainty_measure)
-
-        print(
-            f"\nCorrect speaker: {correct_speaker}, predicted speaker is {predicted_speaker}"
-        )
-
+        
+        test_speaker_labels = [name for name in os.listdir(Config.dataset_test) if os.path.isdir(os.path.join(Config.dataset_test, name))]
+        
+        if predicted_speaker in test_speaker_labels:
+            print(f"\nCorrect speaker: {correct_speaker}, predicted speaker is {predicted_speaker}")
+        else:
+            print(f"\nCorrect speaker: {correct_speaker}, predicted speaker is unknown")
+            
         for i in range(len(certainty_measure)):
             if certainty_measure[i] > 5:
                 if (
                     certainty_measure[i] == max_prediction
                     and speaker_labels[i] == correct_speaker
                 ):
-                    print(
-                        f"\033[1;32;40m {speaker_labels[i]}: {certainty_measure[i]:.2f}% \033[0m"
-                    )
+                    if speaker_labels[i] in test_speaker_labels:
+                        print(f"\033[1;32;40m {speaker_labels[i]}: {certainty_measure[i]:.2f}% \033[0m")
+                    else:
+                        print(f"\033[1;32;40m unknown speaker: {certainty_measure[i]:.2f}% \033[0m")
+                    
                 elif (
                     certainty_measure[i] == max_prediction
                     and speaker_labels[i] != correct_speaker
                 ):
-                    print(
-                        f"\033[1;31;40m {speaker_labels[i]}: {certainty_measure[i]:.2f}% \033[0m"
-                    )
+                    if speaker_labels[i] in test_speaker_labels:
+                        print(f"\033[1;31;40m {speaker_labels[i]}: {certainty_measure[i]:.2f}% \033[0m")
+                    else:
+                        print(f"\033[1;31;40m unknown speaker: {certainty_measure[i]:.2f}% \033[0m")
+                        
                 else:
-                    print(f"{speaker_labels[i]}: {certainty_measure[i]:.2f}%")
+                    if speaker_labels[i] in test_speaker_labels:
+                        print(f"{speaker_labels[i]}: {certainty_measure[i]:.2f}%")
+                    else:
+                        print(f"unknown speaker: {certainty_measure[i]:.2f}%")
 
     print(f"\nCorrectly identified speakers: {correctly_identified}")
