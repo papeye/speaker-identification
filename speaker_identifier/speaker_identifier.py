@@ -1,5 +1,6 @@
 import os
 import datetime
+import numpy as np
 
 from .timer import Timer
 from .config import Config
@@ -32,6 +33,7 @@ class SpeakerIdentifier:
     ) -> None:
 
         self.timer.start_prepare_train()
+        self.speaker_labels = os.listdir(Config.dataset_train_audio)
         
         no_train_samples = len(os.listdir(train_data_dir))
         no_base_speakers = max(Config.n_speakers - no_train_samples, 0)
@@ -43,7 +45,7 @@ class SpeakerIdentifier:
 
         self.timer.end_prepare_train()
 
-        self.nn_model = NNModel(model_name=self.name)
+        self.nn_model = NNModel(no_speakers = len(self.speaker_labels), model_name=self.name)
 
         self.timer.start_training()
         noises = prepareNoise() if add_noise_to_training_data else None
@@ -77,10 +79,15 @@ class SpeakerIdentifier:
             path = os.path.join(Config.dataset_test, dir)
 
             test_ds = generate_test_ds(path, dir)
-
-            predicted_speaker, certainty_measure, speaker_labels = (
-                self.nn_model.predict(test_ds)
-            )
+            
+            _predictions = self.nn_model.predict(test_ds)
+            
+            
+            certainty_measure = 100 * np.mean(_predictions, axis=0)
+            predicted_speaker_index = np.argmax(certainty_measure, axis=-1)
+            predicted_speaker = self.speaker_labels[predicted_speaker_index]
+            
+            
             if predicted_speaker == dir:
                 correctly_identified += 1
 
@@ -89,7 +96,7 @@ class SpeakerIdentifier:
                     "correct_speaker": dir,
                     "predicted_speaker": predicted_speaker,
                     "certainty_measure": certainty_measure,
-                    "speaker_labels": speaker_labels,
+                    "speaker_labels": self.speaker_labels,
                 }
             )
 

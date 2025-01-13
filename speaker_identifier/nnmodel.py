@@ -21,7 +21,7 @@ class NNModel:
             metrics=["accuracy"],
         )
 
-    def __init__(self, model_name: str):
+    def __init__(self, no_speakers: int, model_name: str):
         _model_filename = (
             f"{model_name}.keras"
             if model_name != None
@@ -29,8 +29,7 @@ class NNModel:
         )
         self.model_filepath = Utils.model_file_path(_model_filename)
 
-        self.speaker_labels = os.listdir(Config.dataset_train_audio)
-        self.num_classes = len(self.speaker_labels)
+        self.no_classes = no_speakers
 
         try:
             self.model = keras.models.load_model(self.model_filepath)
@@ -73,7 +72,7 @@ class NNModel:
         x = keras.layers.Dense(128, activation="relu")(x)
 
         outputs = keras.layers.Dense(
-            self.num_classes, activation="softmax", name="output"
+            self.no_classes, activation="softmax", name="output"
         )(x)
 
         self.model = keras.models.Model(inputs=inputs, outputs=outputs)
@@ -81,13 +80,13 @@ class NNModel:
 
     def _update_output_layer(self):
         print(
-            f"Replacing the output layer with a new one with {self.num_classes} classes"
+            f"Replacing the output layer with a new one with {self.no_classes} classes"
         )
 
         x = self.model.layers[-2].output
 
         new_output = keras.layers.Dense(
-            self.num_classes, activation="softmax", name="output"
+            self.no_classes, activation="softmax", name="output"
         )(x)
 
         self.model = keras.models.Model(inputs=self.model.input, outputs=new_output)
@@ -107,10 +106,4 @@ class NNModel:
     def predict(self, test_ds: tf.data.Dataset) -> dict[str, float]:
         audios, _ = next(iter(test_ds))
 
-        y_pred = self.model(audios)
-
-        certainty_measure = 100 * np.mean(y_pred, axis=0)
-        predicted_speaker_index = np.argmax(certainty_measure, axis=-1)
-        predicted_speaker = self.speaker_labels[predicted_speaker_index]
-
-        return predicted_speaker, certainty_measure, self.speaker_labels
+        return self.model(audios)
