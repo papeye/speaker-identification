@@ -19,6 +19,8 @@ class Config:
 
     dataset_train_audio = os.path.join(dataset_train, audio_subfolder)
     dataset_train_noise = os.path.join(dataset_train, noise_subfolder)
+    
+    default_add_noise_to_train_data = False
 
     valid_split = 0.1
     shuffle_seed = 43

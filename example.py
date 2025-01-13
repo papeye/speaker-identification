@@ -1,16 +1,9 @@
-from speaker_identifier import SpeakerIdentifier, TrainingType, display_predictions
+from speaker_identifier import *
 
 
 """ Flags for execution control"""
-TRAINING_TYPE = TrainingType.PREPARE_DATA_AND_TRAIN
-# TRAINING_TYPE = TrainingType.TRAIN_ONLY
-# TRAINING_TYPE = TrainingType.NO_TRAINING
-
-ADD_NOISE_TO_TRAINING_DATA = False
-PREPARE_TEST_DATA = True
-
-TRAINING_VAD = True
-PREDICTING_VAD = True
+TRAINING_VAD = True # whether to use VAD for training data
+PREDICTING_VAD = True # whether to use VAD for predicting data
 
 
 def main():
@@ -21,14 +14,11 @@ def main():
 
     user1.train(
         train_data_dir=train_example_dir,
-        training_type=TRAINING_TYPE,
-        add_noise_to_training_data=ADD_NOISE_TO_TRAINING_DATA,
         with_vad=TRAINING_VAD,
     )
 
     predictions, correctly_identified = user1.predict(
         test_data_dir=test_example_dir,
-        prepare_test_data=PREPARE_TEST_DATA,
         with_vad=PREDICTING_VAD,
     )
 

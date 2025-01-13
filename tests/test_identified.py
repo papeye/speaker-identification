@@ -1,4 +1,4 @@
-from speaker_identifier import SpeakerIdentifier, TrainingType
+from speaker_identifier import SpeakerIdentifier
 
 minimun_threshold = 0.5  # TODO Update to 0.9 before release
 
@@ -21,15 +21,10 @@ def run_predicting() -> float:
 
     speaker_identifier.train(
         train_data_dir=train_example_dir,
-        training_type=TrainingType.PREPARE_DATA_AND_TRAIN,
-        add_noise_to_training_data=False,
-        with_vad=True,
     )
 
     _, correctly_identified = speaker_identifier.predict(
         test_data_dir=test_example_dir,
-        prepare_test_data=True,
-        with_vad=True,
     )
 
     return correctly_identified
