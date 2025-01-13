@@ -66,7 +66,7 @@ def display_predictions(predictions, correctly_identified):
         else:
             print(f"\nCorrect speaker: {correct_speaker}, predicted speaker is unknown")
             
-        j=1
+        unknown_speaker_label=1
         for i in range(len(certainty_measure)):
             if certainty_measure[i] > 5:
                 if (
@@ -76,8 +76,8 @@ def display_predictions(predictions, correctly_identified):
                     if speaker_labels[i] in test_speaker_labels:
                         print(f"\033[1;32;40m {speaker_labels[i]}: {certainty_measure[i]:.2f}% \033[0m")
                     else:
-                        print(f"\033[1;32;40m unknown speaker {j}: {certainty_measure[i]:.2f}% \033[0m")
-                        j=j+1
+                        print(f"\033[1;32;40m unknown speaker {unknown_speaker_label}: {certainty_measure[i]:.2f}% \033[0m")
+                        unknown_speaker_label=unknown_speaker_label+1
                     
                 elif (
                     certainty_measure[i] == max_prediction
@@ -86,14 +86,14 @@ def display_predictions(predictions, correctly_identified):
                     if speaker_labels[i] in test_speaker_labels:
                         print(f"\033[1;31;40m {speaker_labels[i]}: {certainty_measure[i]:.2f}% \033[0m")
                     else:
-                        print(f"\033[1;31;40m unknown speaker {j}: {certainty_measure[i]:.2f}% \033[0m")
-                        j=j+1
+                        print(f"\033[1;31;40m unknown speaker {unknown_speaker_label}: {certainty_measure[i]:.2f}% \033[0m")
+                        unknown_speaker_label=unknown_speaker_label+1
                         
                 else:
                     if speaker_labels[i] in test_speaker_labels:
                         print(f"{speaker_labels[i]}: {certainty_measure[i]:.2f}%")
                     else:
-                        print(f"unknown speaker {j}: {certainty_measure[i]:.2f}%")
-                        j=j+1
+                        print(f"unknown speaker {unknown_speaker_label}: {certainty_measure[i]:.2f}%")
+                        unknown_speaker_label=unknown_speaker_label+1
 
     print(f"\nCorrectly identified speakers: {correctly_identified}")
