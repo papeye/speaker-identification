@@ -1,6 +1,5 @@
 from speaker_identifier import *
 
-
 """ Flags for execution control"""
 TRAINING_VAD = True # whether to use VAD for training data
 PREDICTING_VAD = True # whether to use VAD for predicting data
@@ -17,16 +16,19 @@ def main():
         with_vad=TRAINING_VAD,
     )
 
-    predictions, correctly_identified = user1.predict(
+    predictions = user1.predict(
         test_data_dir=test_example_dir,
         with_vad=PREDICTING_VAD,
     )
+    
+    # print predictions for first audio as example
+    first_audio = next(iter(predictions.items()))
+    print(f"Predictions for first audio: {first_audio[0]}\n")
 
-    display_predictions(predictions, correctly_identified)
+    print(first_audio[1])
 
     print(user1.timer)
 
-    return correctly_identified
 
 
 if __name__ == "__main__":

@@ -57,7 +57,6 @@ def display_predictions(predictions, correctly_identified):
         correct_speaker = detail["correct_speaker"]
         predicted_speaker = detail["predicted_speaker"]
         certainty_measure = detail["certainty_measure"]
-        speaker_labels = detail["speaker_labels"]
         max_prediction = np.max(certainty_measure)
 
         print(
@@ -68,19 +67,19 @@ def display_predictions(predictions, correctly_identified):
             if certainty_measure[i] > 5:
                 if (
                     certainty_measure[i] == max_prediction
-                    and speaker_labels[i] == correct_speaker
+                    and predicted_speaker == correct_speaker
                 ):
                     print(
-                        f"\033[1;32;40m {speaker_labels[i]}: {certainty_measure[i]:.2f}% \033[0m"
+                        f"\033[1;32;40m {predicted_speaker}: {certainty_measure[i]:.2f}% \033[0m"
                     )
                 elif (
                     certainty_measure[i] == max_prediction
-                    and speaker_labels[i] != correct_speaker
+                    and predicted_speaker != correct_speaker
                 ):
                     print(
-                        f"\033[1;31;40m {speaker_labels[i]}: {certainty_measure[i]:.2f}% \033[0m"
+                        f"\033[1;31;40m {predicted_speaker}: {certainty_measure[i]:.2f}% \033[0m"
                     )
                 else:
-                    print(f"{speaker_labels[i]}: {certainty_measure[i]:.2f}%")
+                    print(f"{predicted_speaker}: {certainty_measure[i]:.2f}%")
 
     print(f"\nCorrectly identified speakers: {correctly_identified}")

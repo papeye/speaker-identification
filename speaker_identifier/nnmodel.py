@@ -106,4 +106,6 @@ class NNModel:
     def predict(self, test_ds: tf.data.Dataset) -> dict[str, float]:
         audios, _ = next(iter(test_ds))
 
-        return self.model(audios)
+        pred =  self.model(audios)
+        
+        return np.argmax(pred, axis=1) # return the index of the highest probability (index correspond to the index of speaeaker_labels)

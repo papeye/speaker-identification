@@ -1,6 +1,6 @@
 import os
 import datetime
-import numpy as np
+from collections import Counter
 
 from .timer import Timer
 from .config import Config
@@ -12,6 +12,7 @@ from .data_preprocessing.dataset_generator import (
     generate_train_valid_ds,
     generate_test_ds,
 )
+from .result import Result
 
 
 class SpeakerIdentifier:
@@ -59,7 +60,7 @@ class SpeakerIdentifier:
         self,
         test_data_dir: str,
         with_vad: bool = True,
-    ) -> None:
+    ) -> Result:
         self.timer.start_prepare_test()
 
         remove_dir(Config.dataset_test)
@@ -70,8 +71,7 @@ class SpeakerIdentifier:
             
         self.timer.end_prepare_test()
 
-        correctly_identified = 0
-        predictions = []
+        result = Result()
 
         self.timer.start_predicting()
 
@@ -82,27 +82,17 @@ class SpeakerIdentifier:
             
             _predictions = self.nn_model.predict(test_ds)
             
+            counts = Counter(_predictions)
             
-            certainty_measure = 100 * np.mean(_predictions, axis=0)
-            predicted_speaker_index = np.argmax(certainty_measure, axis=-1)
-            predicted_speaker = self.speaker_labels[predicted_speaker_index]
+            no_samples = len(_predictions)
             
+            raw_result = {self.speaker_labels[i]: counts.get(i, 0) / no_samples for i in range(len(self.speaker_labels)) }
             
-            if predicted_speaker == dir:
-                correctly_identified += 1
-
-            predictions.append(
-                {
-                    "correct_speaker": dir,
-                    "predicted_speaker": predicted_speaker,
-                    "certainty_measure": certainty_measure,
-                    "speaker_labels": self.speaker_labels,
-                }
+            result[dir] = dict(
+                sorted((item for item in raw_result.items() if item[1] != 0), key=lambda item: item[1], reverse=True,)
             )
-
-        total_speakers = len(os.listdir(Config.dataset_test))
-
+            
         self.timer.end_predict()
         self.timer.end_execution()
 
-        return predictions, correctly_identified / total_speakers
+        return result
