@@ -24,7 +24,7 @@ class Config:
     shuffle_seed = 43
     sampling_rate = 16000
     sample_width = 2  # 16-bit audio uses 2 bytes per sample (since 16 bits = 2 bytes)
-    scale = 0.5
+    scale = 0.01
     batch_size = 128
     epochs = 3
 

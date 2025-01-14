@@ -42,6 +42,8 @@ def __load_noise_sample(path: str) -> Optional[List[tf.Tensor]]:
     sample, sampling_rate = tf.audio.decode_wav(
         tf.io.read_file(path), desired_channels=1
     )
+    resampled_noise = tf.audio.encode_wav(sample, sample_rate=Config.sampling_rate)
+    sample, sampling_rate = tf.audio.decode_wav(resampled_noise, desired_channels=1)
     if sampling_rate == Config.sampling_rate:
         # Number of slices of 16000 each that can be generated from the noise sample
         slices = int(sample.shape[0] / Config.sampling_rate)
