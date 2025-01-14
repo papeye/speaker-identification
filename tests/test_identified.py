@@ -27,12 +27,9 @@ def run_predicting() -> float:
         test_data_dir=test_example_dir,
     )
     
-    match_count = sum(
-        outer_key == max(inner_dict, key=inner_dict.get)
-        for outer_key, inner_dict in predictions.items()
-    )
-
-    return match_count / len(predictions)
+    correctly_identified = sum(1 for key, result in predictions.items() if key == result.best_prediction)
+    
+    return correctly_identified / len(predictions)
 
 
 def test_correctly_identifed() -> None:
