@@ -95,13 +95,13 @@ class SpeakerIdentifier:
         self,
         test_data_dir: str,
         with_vad: bool = True,
-    ) -> Result:
+    ) -> dict[str, Result]:
         """
     Predict speaker labels for audio samples in the specified directory.
 
     This method processes audio files located in the specified directory, optionally applies 
     Voice Activity Detection (VAD) during preprocessing, and generates predictions for each 
-    speaker. The results are sorted by probability and returned as a `Result` object.
+    speaker. The results are sorted by probability and returned as a dictionary.
 
     Args:
         test_data_dir (str): Path to the directory containing test audio files. Each file is 
@@ -145,7 +145,7 @@ class SpeakerIdentifier:
             
         self.timer.end_prepare_test()
 
-        result = Result()
+        result = {}
 
         self.timer.start_predicting()
 
@@ -162,7 +162,7 @@ class SpeakerIdentifier:
             
             raw_result = {self.speaker_labels[i]: counts.get(i, 0) / no_samples for i in range(len(self.speaker_labels)) }
             
-            result[dir] = dict(
+            result[dir] = Result(
                 sorted((item for item in raw_result.items() if item[1] != 0), key=lambda item: item[1], reverse=True,)
             )
             

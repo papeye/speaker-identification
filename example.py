@@ -21,11 +21,9 @@ def main():
         with_vad=PREDICTING_VAD,
     )
     
-    # print predictions for first audio as example
-    first_audio = next(iter(predictions.items()))
-    print(f"Predictions for first audio: {first_audio[0]}\n")
-
-    print(first_audio[1])
+    print("audio: prediction")
+    for key, value in predictions.items():
+        print(f"{key}: {value.best_prediction}")
 
     print(user1.timer)
 
