@@ -23,11 +23,13 @@ def run_predicting() -> float:
         train_data_dir=train_example_dir,
     )
 
-    _, correctly_identified = speaker_identifier.predict(
+    predictions = speaker_identifier.predict(
         test_data_dir=test_example_dir,
     )
-
-    return correctly_identified
+    
+    correctly_identified = sum(1 for key, result in predictions.items() if key == result.best_prediction)
+    
+    return correctly_identified / len(predictions)
 
 
 def test_correctly_identifed() -> None:

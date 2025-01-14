@@ -49,38 +49,3 @@ def move_base_data_to_proper_folders(no_base_speakers_to_move: int) -> None:
 def remove_dir(dir: str):
     if os.path.exists(dir):
         shutil.rmtree(dir)
-
-
-def display_predictions(predictions, correctly_identified):
-
-    for detail in predictions:
-        correct_speaker = detail["correct_speaker"]
-        predicted_speaker = detail["predicted_speaker"]
-        certainty_measure = detail["certainty_measure"]
-        speaker_labels = detail["speaker_labels"]
-        max_prediction = np.max(certainty_measure)
-
-        print(
-            f"\nCorrect speaker: {correct_speaker}, predicted speaker is {predicted_speaker}"
-        )
-
-        for i in range(len(certainty_measure)):
-            if certainty_measure[i] > 5:
-                if (
-                    certainty_measure[i] == max_prediction
-                    and speaker_labels[i] == correct_speaker
-                ):
-                    print(
-                        f"\033[1;32;40m {speaker_labels[i]}: {certainty_measure[i]:.2f}% \033[0m"
-                    )
-                elif (
-                    certainty_measure[i] == max_prediction
-                    and speaker_labels[i] != correct_speaker
-                ):
-                    print(
-                        f"\033[1;31;40m {speaker_labels[i]}: {certainty_measure[i]:.2f}% \033[0m"
-                    )
-                else:
-                    print(f"{speaker_labels[i]}: {certainty_measure[i]:.2f}%")
-
-    print(f"\nCorrectly identified speakers: {correctly_identified}")
