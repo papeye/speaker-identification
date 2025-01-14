@@ -17,7 +17,7 @@ def main():
     train_example_dir = "example_data/train_data"
     test_example_dir = "example_data/test_data"
 
-    user1 = SpeakerIdentifier(model_name="user1")
+    user1 = SpeakerIdentifier(model_name="user1", training_ds_dir=train_example_dir)
 
     user1.train(
         train_data_dir=train_example_dir,

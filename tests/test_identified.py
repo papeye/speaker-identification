@@ -17,7 +17,7 @@ def run_predicting() -> float:
     train_example_dir = "example_data/train_data"
     test_example_dir = "example_data/test_data"
 
-    speaker_identifier = SpeakerIdentifier()
+    speaker_identifier = SpeakerIdentifier(training_ds_dir=train_example_dir)
 
     speaker_identifier.train(
         train_data_dir=train_example_dir,
