@@ -32,8 +32,11 @@ class SpeakerIdentifier:
     ) -> None:
 
         self.timer.start_prepare_train()
+        
+        no_train_samples = len(os.listdir(train_data_dir))
+        no_base_speakers = max(Config.n_speakers - no_train_samples, 0)
 
-        move_base_data_to_proper_folders(Config.n_base_speakers)
+        move_base_data_to_proper_folders(no_base_speakers_to_move = no_base_speakers)
         cut_all_into_segments(
             train_data_dir, Config.dataset_train_audio, with_vad=with_vad,
         )
