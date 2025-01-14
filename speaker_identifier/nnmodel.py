@@ -103,9 +103,28 @@ class NNModel:
             callbacks=[self.earlystopping_cb, self.mdlcheckpoint_cb],
         )
 
-    def predict(self, test_ds: tf.data.Dataset) -> dict[str, float]:
+    def predict(self, test_ds: tf.data.Dataset) -> np.ndarray:
+        """
+        Predict the speaker labels for the given test dataset.
+
+        This method processes a TensorFlow dataset containing audio data and uses
+        the model to predict the speaker for each audio sample. The method returns
+        the indices of the highest probability predictions, corresponding to the
+        speaker labels.
+
+        Args:
+            test_ds (tf.data.Dataset): A TensorFlow dataset containing audio data and labels.
+                                   Each element in the dataset is expected to be a tuple
+                                   (audios, labels), where `audios` is a batch of audio
+                                   features and `labels` are the corresponding true labels
+                                   (not used in prediction).
+
+        Returns:
+            np.ndarray: An array of predicted indices, where each index corresponds
+                    to the label (speaker_labels[i]) of the predicted speaker with the highest probability.
+        """
         audios, _ = next(iter(test_ds))
 
-        pred =  self.model(audios)
-        
-        return np.argmax(pred, axis=1) # return the index of the highest probability (index correspond to the index of speaeaker_labels)
+        pred = self.model(audios)
+
+        return np.argmax(pred, axis=1)
