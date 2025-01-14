@@ -4,7 +4,6 @@ import datetime
 from .timer import Timer
 from .config import Config
 from .nnmodel import NNModel
-from .training_type import TrainingType
 from .helpers import move_base_data_to_proper_folders, remove_dir
 from .data_preprocessing.audio_cutter import AudioCutter, cut_all_into_segments
 from .data_preprocessing.noise_preparator import prepareNoise
@@ -28,49 +27,46 @@ class SpeakerIdentifier:
     def train(
         self,
         train_data_dir: str,
-        training_type: TrainingType,
-        add_noise_to_training_data: bool,
+        add_noise_to_training_data: bool = Config.default_add_noise_to_train_data,
         with_vad: bool = True,
     ) -> None:
 
-        if training_type.prepareTrainData:
-            self.timer.start_prepare_train()
+        self.timer.start_prepare_train()
+        
+        no_train_samples = len(os.listdir(train_data_dir))
+        no_base_speakers = max(Config.n_speakers - no_train_samples, 0)
 
-            move_base_data_to_proper_folders(
-                self.training_ds_dir
-            )  # TODO Remove this method - it's obsolete if we use already divided data
-            cut_all_into_segments(
-                train_data_dir, Config.dataset_train_audio, with_vad=with_vad
-            )
+        move_base_data_to_proper_folders(no_base_speakers_to_move = no_base_speakers)
+        cut_all_into_segments(
+            train_data_dir, Config.dataset_train_audio, with_vad=with_vad,
+        )
 
-            self.timer.end_prepare_train()
+        self.timer.end_prepare_train()
 
         self.nn_model = NNModel(model_name=self.name)
 
-        if training_type.train:
-            self.timer.start_training()
-            noises = prepareNoise() if add_noise_to_training_data else None
+        self.timer.start_training()
+        noises = prepareNoise() if add_noise_to_training_data else None
 
-            train_ds, valid_ds = generate_train_valid_ds(noises)
-            self.nn_model.train(train_ds, valid_ds)
+        train_ds, valid_ds = generate_train_valid_ds(noises)
+        self.nn_model.train(train_ds, valid_ds)
 
-            self.timer.end_training()
+        self.timer.end_training()
 
     def predict(
         self,
         test_data_dir: str,
-        prepare_test_data: bool,
         with_vad: bool = True,
     ) -> None:
-        if prepare_test_data:
-            self.timer.start_prepare_test()
+        self.timer.start_prepare_test()
 
-            remove_dir(Config.dataset_test)
+        remove_dir(Config.dataset_test)
 
-            for file in os.listdir(test_data_dir):
-                path = os.path.join(test_data_dir, file)
-                AudioCutter(path, Config.dataset_test).cut(with_vad)
-            self.timer.end_prepare_test()
+        for file in os.listdir(test_data_dir):
+            path = os.path.join(test_data_dir, file)
+            AudioCutter(path, Config.dataset_test).cut(with_vad)
+            
+        self.timer.end_prepare_test()
 
         correctly_identified = 0
         predictions = []
