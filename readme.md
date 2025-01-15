@@ -42,4 +42,6 @@ which returns a class Result mapping each speaker directory to a dictionary of p
 
 ## For contributors
 
-The number of epochs can be adjusted in the Config file, but on the example audio 90% accuracy is obtained for only 3 epochs (which is default). Convolutional neural network is defined in nnmodel.py file using residual blocks and its size is chosen for identifying 20 speakers but users are encouraged to experiment with hyperparameters for the best performance. If user provides less then 20 speakers, base speakers are added to the training dataset to achive the best consistent performance. However if user provides more than 20 speakers in the training_ds_dir no base speakers will be added to the training dataset. 
+The number of epochs can be adjusted in the Config file, but on the example audio 90% accuracy is obtained for only 3 epochs (which is default). Convolutional neural network is defined in nnmodel.py file using residual blocks and its size is chosen for identifying 20 speakers but users are encouraged to experiment with hyperparameters for the best performance. If available, weights from previous training run will be used as for initialization of the NN with replaced output layer.
+
+If user provides less then 20 speakers, base speakers are added to the training dataset to achive the best consistent performance. However if user provides more than 20 speakers in the training_ds_dir no base speakers will be added to the training dataset. 
