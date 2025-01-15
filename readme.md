@@ -1,27 +1,30 @@
-# Speaker identification
+# Speaker identification ![tests](https://github.com/papeye/speaker-identification/actions/workflows/python-package.yml/badge.svg)
 
 Implementation of CNN for speaker identification in TensorFlow. Trained on the example data of 20 speakers, the network correctly identifies about 90% of the speakers. 
 
-## Running instructions
+## Setup
 
 To install the package run
 ```
 pip install git+https://github.com/papeye/speaker-identification.git@setup-package
 ```
 
-### Example run on 20 speakers using 
-```
-python .\example.py
-```
+The example demonstrating the preformance of the package is found in example.py. 
 
-## Functionality
+
+## Usage
 
 The package provides the class SpeakerIdentifier, which initializes a CNN for speaker identification. This class requires a path to a directory containing training audio files. The audio file names should represent the speakers' names:
 ```
 user1 = SpeakerIdentifier(model_name="user1",training_ds_dir=train_example_dir)
 ```
+[!NOTE]
+Only single file per speaker is supported for training at the moment
+[!IMPORTANT]
+It is assumed that only one person is speaking in an audio file
 
- Note that in the current version, only single files are used for training and it is assumed that in each of the audio files, only one speaker is present. The audio files are subsequently processed by optional Voice Activity Detection (optional) to remove silence and split into 1s segments which are used for the training. Optional data augmentation is possible by adding noise to the training audios (configurable in Config file).
+ 
+  The audio files are subsequently processed by optional Voice Activity Detection (optional) to remove silence and split into 1s segments which are used for the training. Optional data augmentation is possible by adding noise to the training audios (configurable in Config file).
 
 The training is done via train method of SpeakerIdentifier:
 ```
@@ -34,5 +37,5 @@ The number of epochs can be adjusted in the Config file, but on the example audi
 predictions = user1.predict(test_data_dir=test_example_dir, with_vad=True)
 ```
 
-which returns a class mapping each speaker directory to a dictionary of predicted speaker labels and their normalized probabilities, sorted in descending order of probability. 
+which returns a class Result mapping each speaker directory to a dictionary of predicted speaker labels and their normalized probabilities, sorted in descending order of probability. Class Results has best_prediction getter which returns the most probable speaker.
 
