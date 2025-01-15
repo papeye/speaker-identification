@@ -18,10 +18,11 @@ The package provides the class SpeakerIdentifier, which initializes a CNN for sp
 ```
 user1 = SpeakerIdentifier(model_name="user1",training_ds_dir=train_example_dir)
 ```
-[!NOTE]
-Only single file per speaker is supported for training at the moment
-[!IMPORTANT]
-It is assumed that only one person is speaking in an audio file
+>[!NOTE]
+>Only single file per speaker is supported for training at the moment
+
+>[!IMPORTANT]
+>It is assumed that only one person is speaking in an audio file
 
  
   The audio files are subsequently processed by optional Voice Activity Detection (optional) to remove silence and split into 1s segments which are used for the training. Optional data augmentation is possible by adding noise to the training audios (configurable in Config file).
