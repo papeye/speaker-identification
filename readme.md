@@ -32,7 +32,7 @@ The training is done via train method of SpeakerIdentifier:
 user1.train(train_data_dir=train_example_dir, with_vad=True)
 ```
 
-The number of epochs can be adjusted in the Config file, but on the example audio 90% accuracy is obtained for only 3 epochs (which is default). Convolutional neural network is defined in nnmodel.py file using residual blocks and its size is chosen for identifying 20 speakers but users are encouraged to experiment with hyperparameters for the best performance. If user provides less then 20 speakers, base speakers are added to the training dataset to achive the best consistent performance. However if user provides more than 20 speakers in the training_ds_dir no base speakers will be added to the training dataset. The trained model can be used to predict the speaker from the audio file by calling
+The trained model can be used to predict the speaker from the audio file by calling
 
 ```
 predictions = user1.predict(test_data_dir=test_example_dir, with_vad=True)
@@ -40,3 +40,6 @@ predictions = user1.predict(test_data_dir=test_example_dir, with_vad=True)
 
 which returns a class Result mapping each speaker directory to a dictionary of predicted speaker labels and their normalized probabilities, sorted in descending order of probability. Class Results has best_prediction getter which returns the most probable speaker.
 
+## For contributors
+
+The number of epochs can be adjusted in the Config file, but on the example audio 90% accuracy is obtained for only 3 epochs (which is default). Convolutional neural network is defined in nnmodel.py file using residual blocks and its size is chosen for identifying 20 speakers but users are encouraged to experiment with hyperparameters for the best performance. If user provides less then 20 speakers, base speakers are added to the training dataset to achive the best consistent performance. However if user provides more than 20 speakers in the training_ds_dir no base speakers will be added to the training dataset. 
