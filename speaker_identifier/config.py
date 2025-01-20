@@ -19,7 +19,7 @@ class Config:
 
     dataset_train_audio = os.path.join(dataset_train, audio_subfolder)
     dataset_train_noise = os.path.join(dataset_train, noise_subfolder)
-    
+
     default_add_noise_to_train_data = False
 
     valid_split = 0.1
@@ -28,7 +28,7 @@ class Config:
     sample_width = 2  # 16-bit audio uses 2 bytes per sample (since 16 bits = 2 bytes)
     scale = 0.01
     batch_size = 128
-    epochs = 3
+    epochs = 5
 
 
 class Utils:
